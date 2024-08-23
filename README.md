@@ -94,6 +94,8 @@ For the 1080 output the resulting video will be 1080p x 1920p, the standard 1080
 
 The principle is followed for square and portrait videos.
 
+_Note: The plugin will only output segments for resolutions that are less than or equal to the short side of the video. Meaning no upscaling is conducted. Example: a 1080p video will only produce output segments at resolutions that are specifed less than or eqaul to 1080._
+
 ```ts
 //payload.config.ts
 import { buildConfig } from 'payload/config'
