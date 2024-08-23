@@ -245,6 +245,13 @@ const ResolutionsDefault = [
 ]
 ```
 
+## Memory Considerations
+To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size. 
+
+This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
+
+See Payload Documentation on [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
+
 ## Questions
 
 Please open an issue on this repo with any questions or issues about using this plugin.
