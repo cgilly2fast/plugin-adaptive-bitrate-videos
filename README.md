@@ -107,11 +107,11 @@ import path from 'path'
 import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
 
 export default buildConfig({
-	serverUrl: 'https://example.com' // Must be set to use pluggin
-	plugins: [
-		adaptiveBirateVideos({
-			collections: {
-				'my-collection-slug':{
+  serverUrl: 'https://example.com' // Must be set to use pluggin
+  plugins: [
+    adaptiveBirateVideos({
+      collections: {
+        'my-collection-slug':{
           keepOriginal: true,
           resolutions: [
             {
@@ -120,10 +120,10 @@ export default buildConfig({
             },
             // ...more custom resolutions
           ]
-				}
-			}
-		})
-	]
+        }
+      }
+    })
+  ]
   // The rest of your config goes here
 })
 ```
@@ -137,7 +137,7 @@ The proper way to conditionally enable/disable this plugin is to use the `enable
 adaptiveBirateVideos({
   enabled: process.env.MY_CONDITION === 'true',
   collections: {
-	  'media': {keepOrginal: true}
+    'media': {keepOrginal: true}
   }
 }),
 ```
@@ -171,7 +171,7 @@ Optionally set the length of the segments the source video will be divided into.
 ```ts
 // payload.config.ts
 adaptiveBirateVideos({
-	// ...
+  // ...
   segmentLength: 5 //seconds. Default is 2 seconds.
 })
 ```
