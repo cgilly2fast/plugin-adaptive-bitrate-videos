@@ -66,13 +66,13 @@ export default buildConfig({
 	serverUrl: 'https://example.com' // Must be set to use pluggin
 	plugins: [
     adaptiveBirateVideos({
-			  collections: {
-				  'my-collection-slug': {keepOrginal: true} 
-			  }
-			  cloudStorage: {
-				  adapter: adapter
-			  }
-		})
+      collections: {
+        'my-collection-slug': {keepOrginal: true}
+      }
+      cloudStorage: {
+        adapter: adapter
+      }
+		}),
 		cloudStorage({ // Cloud storage plugin must come after plugin
       collections: {
         'my-collection-slug': {
@@ -85,8 +85,7 @@ export default buildConfig({
         },
       },
     }),
-		
-	]
+  ]
   // The rest of your config goes here
 })
 ```
