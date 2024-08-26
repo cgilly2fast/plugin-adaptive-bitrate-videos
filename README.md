@@ -74,16 +74,17 @@ export default buildConfig({
 			  }
 		})
 		cloudStorage({ // Cloud storage plugin must come after plugin
-	      collections: {
-	        'my-collection-slug': {
-            // see docs for the adapter you want to use
-	          adapter: adapter, 
-	        },
-          'segments': { //the output collection created by the plugin
-	          adapter: adapter, 
-	        },
-	      },
-	    }),
+      collections: {
+        'my-collection-slug': {
+          // see docs for the adapter you want to use
+          adapter: adapter, 
+        },
+        // the output collection created by the plugin
+        'segments': { // Required name 'segments' unless overrided in segmentsOverride
+          adapter: adapter, 
+        },
+      },
+    }),
 		
 	]
   // The rest of your config goes here
