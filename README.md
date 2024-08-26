@@ -27,14 +27,14 @@ import path from 'path'
 import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
 
 export default buildConfig({
-	serverUrl: 'https://example.com' // Must be set to use pluggin
-	plugins: [
-		adaptiveBirateVideos({
-			collections: {
-				'my-collection-slug': {keepOrginal: true}
-			}
-		})
-	]
+  serverUrl: 'https://example.com' // Must be set to use pluggin
+  plugins: [
+    adaptiveBirateVideos({
+      collections: {
+        'my-collection-slug': {keepOrginal: true}
+      }
+    })
+  ]
   // The rest of your config goes here
 })
 ```
