@@ -65,14 +65,7 @@ const adapter = gcsAdapter({
 export default buildConfig({
 	serverUrl: 'https://example.com' // Must be set to use pluggin
 	plugins: [
-		cloudStorage({
-	      collections: {
-	        'my-collection-slug': {
-	          adapter: adapter, // see docs for the adapter you want to use
-	        },
-	      },
-	    }),
-		adaptiveBirateVideos({
+    adaptiveBirateVideos({
 			  collections: {
 				  'my-collection-slug': {keepOrginal: true} 
 			  }
@@ -80,6 +73,18 @@ export default buildConfig({
 				  adapter: adapter
 			  }
 		})
+		cloudStorage({ // Cloud storage plugin must come after plugin
+	      collections: {
+	        'my-collection-slug': {
+            // see docs for the adapter you want to use
+	          adapter: adapter, 
+	        },
+          'segments': { //the output collection created by the plugin
+	          adapter: adapter, 
+	        },
+	      },
+	    }),
+		
 	]
   // The rest of your config goes here
 })
