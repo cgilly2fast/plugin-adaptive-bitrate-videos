@@ -1,7 +1,6 @@
 import { buildConfig } from 'payload/config'
 import path from 'path'
 import Users from './collections/Users'
-import Examples from './collections/Examples'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { slateEditor } from '@payloadcms/richtext-slate'
@@ -29,7 +28,7 @@ export default buildConfig({
     },
   },
   editor: slateEditor({}),
-  collections: [Examples, Users, Media],
+  collections: [Users, Media],
   serverURL: process.env.SERVER_URL,
   typescript: {
     outputFile: path.resolve(__dirname, 'payload-types.ts'),

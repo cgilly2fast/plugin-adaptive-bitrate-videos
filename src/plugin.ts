@@ -1,9 +1,6 @@
 import type { Config, Plugin } from 'payload/config'
 
-import { onInitExtension } from './onInitExtension'
 import type { PluginOptions } from './types'
-import { extendWebpackConfig } from './webpack'
-import AfterDashboard from './components/AfterDashboard'
 import { generateSegmentsCollection } from './collections/Segments'
 import { getAfterOperationHook } from './hooks/afterOperation'
 
@@ -41,31 +38,14 @@ export const samplePlugin =
     config.endpoints = [
       ...(config.endpoints || []),
       {
-        path: '/custom-endpoint',
-        method: 'get',
-        root: true,
+        path: '/process-video',
+        method: 'post',
         handler: (req, res): void => {
           res.json({ message: 'Here is a custom endpoint' })
         },
       },
       // Add additional endpoints here
     ]
-
-    config.globals = [
-      ...(config.globals || []),
-      // Add additional globals here
-    ]
-
-    config.hooks = {
-      ...(config.hooks || {}),
-      // Add additional hooks here
-    }
-
-    config.onInit = async payload => {
-      if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-      // Add additional onInit code by using the onInitExtension function
-      onInitExtension(pluginOptions, payload)
-    }
 
     return config
   }

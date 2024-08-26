@@ -5,13 +5,11 @@ import { InitOptions } from 'payload/config'
 require('dotenv').config()
 const app = express()
 
-// Redirect root to Admin panel
 app.get('/', (_, res) => {
   res.redirect('/admin')
 })
 
 export const start = async (args?: Partial<InitOptions>) => {
-  // Initialize Payload
   await payload.init({
     secret: process.env.PAYLOAD_SECRET,
     express: app,
@@ -20,8 +18,6 @@ export const start = async (args?: Partial<InitOptions>) => {
     },
     ...(args || {}),
   })
-
-  // Add your own express routes here
 
   app.listen(3000)
 }
