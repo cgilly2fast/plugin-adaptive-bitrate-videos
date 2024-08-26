@@ -1,16 +1,16 @@
 import type { Payload } from 'payload/dist/payload'
 
-import type { PluginTypes } from './types'
+import type { PluginOptions } from './types'
 
-export const onInitExtension = (pluginOptions: PluginTypes, payload: Payload): void => {
-  const { express: app } = payload
+export const onInitExtension = (pluginOptions: PluginOptions, payload: Payload): void => {
+    const { express: app } = payload
 
-  if (!app) return
+    if (!app) return
 
-  try {
-    // You can use the existing express app here to add middleware, routes, etc.
-    // app.use(...)
-  } catch (err: unknown) {
-    payload.logger.error({ msg: 'Error in onInitExtension', err })
-  }
+    try {
+        // You can use the existing express app here to add middleware, routes, etc.
+        // app.use(...)
+    } catch (err: unknown) {
+        payload.logger.error({ msg: 'Error in onInitExtension', err })
+    }
 }

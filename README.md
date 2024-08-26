@@ -103,7 +103,7 @@ To reiterate, the essence of a payload plugin is simply to extend the payload co
 
 ```ts
 export const samplePlugin =
-  (pluginOptions: PluginTypes) =>
+  (pluginOptions: PluginOptions) =>
     (incomingConfig: Config): Config => {
       let config = { ...incomingConfig }
 
@@ -180,7 +180,7 @@ You can read more about aliasing files with Webpack or Vite in the [excluding se
 If your plugin has options, you should define and provide types for these options in a separate file which gets exported from the main index.ts.
 
 ```ts
-export interface PluginTypes {
+export interface PluginOptions {
   /**
    * Enable or disable plugin
    * @default false
