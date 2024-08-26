@@ -31,7 +31,7 @@ export default buildConfig({
 	plugins: [
 		adaptiveBirateVideos({
 			collections: {
-				'my-collection-slug': {keepOrginal: true} 
+				'my-collection-slug': {keepOrginal: true}
 			}
 		})
 	]
@@ -79,11 +79,11 @@ export default buildConfig({
 			// The collection users upload source videos to
         	'my-collection-slug': {
           		// see docs for the adapter you want to use
-          		adapter: adapter, 
+          		adapter: adapter,
         	},
         	// the output collection created by the plugin
         	'segments': { // Required name 'segments' unless overridden in segmentsOverride
-          		adapter: adapter, 
+          		adapter: adapter,
         	},
       	},
     }),
@@ -93,9 +93,9 @@ export default buildConfig({
 ```
 
 ### Custom Sizes And Bitrates
-If not resolutions array is provide, the plugin will use the default resolutions and bit rates. `size` specifies the pixel size of the short side of the video so the aspect ratio of any input video is maintained. 
+If not resolutions array is provide, the plugin will use the default resolutions and bit rates. `size` specifies the pixel size of the short side of the video so the aspect ratio of any input video is maintained.
 
-For Example: if you input a 4k 16:9 video (The standard landscape video aspect ratio), the plugin will change the video's height to and allow the width to proportionally change. 
+For Example: if you input a 4k 16:9 video (The standard landscape video aspect ratio), the plugin will change the video's height to and allow the width to proportionally change.
 
 For the 1080 output the resulting video will be 1080p x 1920p, the standard 1080p pixel size.
 
@@ -114,17 +114,17 @@ export default buildConfig({
 	plugins: [
 		adaptiveBirateVideos({
 			  collections: {
-				'my-collection-slug': 
-					{ 
+				'my-collection-slug':
+					{
 						keepOriginal: true,
 						resolutions: [
 							{
-								size: 1080 // pixel size 
+								size: 1080 // pixel size
 								bitrate: 8000000 // kilobits per second
 							},
 							// ...more custom resolutions
 							]
-					} 
+					}
 			  }
 		})
 	]
@@ -229,7 +229,7 @@ const ResolutionsDefault = [
 ```
 
 ## Memory Considerations
-To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size. 
+To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size.
 
 This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
 
