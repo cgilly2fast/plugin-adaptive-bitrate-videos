@@ -1,226 +1,257 @@
-# Payload Plugin Template
+# Payload Adaptive Bitrate Videos Plugin
+This plugin extends Payload CMS to provide Adaptive Bitrate (ABR) streaming capabilities for uploaded video files. It automatically processes video uploads, creates segment playlists for multiple resolution versions, generates HLS manifests, and updates the collection with the master manifest file location.
 
-A template repo to create a [Payload CMS](https://payloadcms.com) plugin.
+### Features
 
-Payload is built with a robust infrastructure intended to support Plugins with ease. This provides a simple, modular, and reusable way for developers to extend the core capabilities of Payload.
+- Automatic video processing on upload
+- Multiple resolution transcoding (144p to 4K, define custom sizes/bitrates)
+- HLS playlist and master manifest generation
+- Flexible storage integration (Local, AWS S3, Google Cloud Storage, Azure Blob Storage)
 
-To build your own Payload plugin, all you need is:
+## Installation
 
-* An understanding of the basic Payload concepts
-* And some JavaScript/Typescript experience
+`yarn add plugin-adaptive-bitrate-videos` or `npm install plugin-adaptive-bitrate-videos`
 
-## Background
+## Usage
 
-Here is a short recap on how to integrate plugins with Payload, to learn more visit the [plugin overview page](https://payloadcms.com/docs/plugins/overview).
+Add this package into your dependencies executing this code in your command line:
 
-### How to install a plugin
+`yarn add plugin-adaptive-bitrate-videos`
 
-To install any plugin, simply add it to your payload.config() in the Plugin array.
-
-```ts
-import samplePlugin from 'sample-plugin';
-
-export const config = buildConfig({
-  plugins: [
-    // You can pass options to the plugin
-    samplePlugin({
-		  enabled: true,
-    }),
-  ]
-});
-```
-
-### Initialization
-
-The initialization process goes in the following order:
-
-1. Incoming config is validated
-2. **Plugins execute**
-3. Default options are integrated
-4. Sanitization cleans and validates data
-5. Final config gets initialized
-
-## Building the Plugin
-
-When you build a plugin, you are purely building a feature for your project and then abstracting it outside of the project.
-
-### Template Files
-
-In the [payload-plugin-template](https://github.com/payloadcms/payload-plugin-template), you will see a common file structure that is used across all plugins:
-
-1. root folder
-2. /src folder
-3. /dev folder
-
-#### Root
-
-In the root folder, you will see various files that relate to the configuration of the plugin. We set up our environment in a similar manner in Payload core and across other projects, so hopefully these will look familiar:
-
-* **README**.md* - This contains instructions on how to use the template. When you are ready, update this to contain instructions on how to use your Plugin.
-* **package**.json* - Contains necessary scripts and dependencies. Overwrite the metadata in this file to describe your Plugin.
-* .**editorconfig** - Defines settings to maintain consistent coding styles.
-* .**eslintrc**.js - Eslint configuration for reporting on problematic patterns.
-* .**gitignore** - List specific untracked files to omit from Git.
-* .**prettierrc**.js - Configuration for Prettier code formatting.
-* **LICENSE** - As part of the open-source community, we ship all plugins with an MIT license but it is not required.
-* **tsconfig**.json - Configures the compiler options for TypeScript
-
-**IMPORTANT***: You will need to modify these files.
-
-#### Dev
-
-In the dev folder, you’ll find a basic payload project, created with `npx create-payload-app` and the blank template.
-
-The `samplePlugin` has already been installed to the `payload.config()` file in this project.
+Now install this plugin within your Payload as follows:
 
 ```ts
-plugins: [
-  samplePlugin({
-    enabled: false,
-  })
-]
-```
+//payload.config.ts
+import { buildConfig } from 'payload/config'
+import path from 'path'
+import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
 
-Later when you rename the plugin or add additional options, make sure to update them here.
-
-You may wish to add collections or expand the test project depending on the purpose of your plugin. Just make sure to keep this dev environment as simplified as possible - users should be able to install your plugin without additional configuration required.
-
-When you’re ready to start development, navigate into this folder with `cd dev`
-
-And then start the project with `yarn dev` and pull up [http://localhost:3000/](http://localhost:3000/) in your browser.
-
-#### Src
-
-Now that we have our environment setup and we have a dev project ready to - it’s time to build the plugin!
-
-**index.ts**
-
-First up, the `src/index.ts` file. It is best practice not to build the plugin directly in this file, instead we use this to export the plugin and types from separate files.
-
-**Plugin.ts**
-
-To reiterate, the essence of a payload plugin is simply to extend the payload config - and that is exactly what we are doing in this file.
-
-```ts
-export const samplePlugin =
-  (pluginOptions: PluginOptions) =>
-    (incomingConfig: Config): Config => {
-      let config = { ...incomingConfig }
-
-      // do something cool with the config here
-
-      return config
-    }
-
-```
-
-First, we receive the existing payload config along with any plugin options.
-
-Then we set the variable `config` to be equal to the existing config.
-
-From here, you can extend the config as you wish.
-
-Finally, you return the config and that is it!
-
-##### Spread Syntax
-
-Spread syntax (or the spread operator) is a feature in JavaScript that uses the dot notation **(...)** to spread elements from arrays, strings, or objects into various contexts.
-
-We are going to use spread syntax to allow us to add data to existing arrays without losing the existing data. It is crucial to spread the existing data correctly – else this can cause adverse behavior and conflicts with Payload config and other plugins.
-
-Let’s say you want to build a plugin that adds a new collection:
-
-```ts
-config.collections = [
-  ...(config.collections || []),
-  // Add additional collections here
-]
-```
-
-First we spread the `config.collections` to ensure that we don’t lose the existing collections, then you can add any additional collections just as you would in a regular payload config.
-
-This same logic is applied to other properties like admin, hooks, globals:
-
-```ts
-config.globals = [
-  ...(config.globals || []),
-  // Add additional globals here
-]
-
-config.hooks = {
-  ...(incomingConfig.hooks || {}),
-  // Add additional hooks here
-}
-```
-
-Some properties will be slightly different to extend, for instance the onInit property:
-
-```ts
-import { onInitExtension } from './onInitExtension' // example file
-
-config.onInit = async payload => {
-  if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-  // Add additional onInit code by defining an onInitExtension function
-  onInitExtension(pluginOptions, payload)
-}
-```
-
-If you wish to add to the onInit, you must include the async/await. We don’t use spread syntax in this case, instead you must await the existing onInit before running additional functionality.
-
-In the template, we have stubbed out a basic `onInitExtension` file that you can use, if not needed feel free to delete it.
-
-##### File Aliasing
-
-If your plugin uses packages or dependencies that are not browser compatible (fs, stripe, nodemailer, etc), you will need to alias them using your bundler to prevent getting errors in build.
-
-You can read more about aliasing files with Webpack or Vite in the [excluding server modules](https://payloadcms.com/docs/admin/excluding-server-code#aliasing-server-only-modules) docs.
-
-##### Types.ts
-
-If your plugin has options, you should define and provide types for these options in a separate file which gets exported from the main index.ts.
-
-```ts
-export interface PluginOptions {
-  /**
-   * Enable or disable plugin
-   * @default false
-   */
-  enabled?: boolean
-}
-```
-
-If possible, include JSDoc comments to describe the options and their types. This allows a developer to see details about the options in their editor.
-
-##### Testing
-
-Having a test suite for your plugin is essential to ensure quality and stability. Jest is a popular testing framework, widely used for testing JavaScript and particularly for applications built with React.
-
-Jest organizes tests into test suites and cases. We recommend creating individual tests based on the expected behavior of your plugin from start to finish.
-
-Writing tests with Jest is very straightforward and you can learn more about how it works in the [Jest documentation.](https://jestjs.io/)
-
-For this template, we stubbed out `plugin.spec.ts` in the `dev` folder where you can write your tests.
-
-```ts
-describe('Plugin tests', () => {
-  // Create tests to ensure expected behavior from the plugin
-  it('some condition that must be met', () => {
-   // Write your test logic here
-   expect(...)
-  })
+export default buildConfig({
+	serverUrl: 'https://example.com' // Must be set to use pluggin
+	plugins: [
+		adaptiveBirateVideos({
+			  collections: {
+				  'my-collection-slug': {keepOrginal: true} 
+			  }
+		})
+	]
+  // The rest of your config goes here
 })
 ```
 
-## Best practices
+See [Payload config options](https://payloadcms.com/docs/configuration/overview#options) for documentation on setting serverUrl in Payload config.
 
-With this tutorial and the `payload-plugin-template`, you should have everything you need to start building your own plugin.
-In addition to the setup, here are other best practices aim we follow:
+### Cloud Storage Plugin
+This plugin can be used with the Payload Cloud Storage Plugin to store you segments and manifest files.  `cloudStorage` is [CollectionOptions](https://github.com/payloadcms/plugin-cloud-storage/blob/c4a492a62abc2f21b4cd6a7c97778acd8e831212/src/types.ts#L48) object from [Payload Cloud Plugin Collection specific options.](https://github.com/payloadcms/payload/tree/main/packages/plugin-cloud-storage#plugin-options)
 
-* **Providing an enable / disable option:** For a better user experience, provide a way to disable the plugin without uninstalling it. This is especially important if your plugin adds additional webpack aliases, this will allow you to still let the webpack run to prevent errors.
-* **Include tests in your GitHub CI workflow**: If you’ve configured tests for your package, integrate them into your workflow to run the tests each time you commit to the plugin repository. Learn more about [how to configure tests into your GitHub CI workflow.](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs)
-* **Publish your finished plugin to NPM**: The best way to share and allow others to use your plugin once it is complete is to publish an NPM package. This process is straightforward and well documented, find out more [creating and publishing a NPM package here.](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/).
-* **Add payload-plugin topic tag**: Apply the tag **payload-plugin **to your GitHub repository. This will boost the visibility of your plugin and ensure it gets listed with [existing payload plugins](https://github.com/topics/payload-plugin).
-* **Use [Semantic Versioning](https://semver.org/) (SemVar)** - With the SemVar system you release version numbers that reflect the nature of changes (major, minor, patch). Ensure all major versions reference their Payload compatibility.
+```ts
+//payload.config.ts
+import { buildConfig } from 'payload/config'
+import path from 'path'
+import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos'
+import { gcsAdapter } from '@payloadcms/plugin-cloud-storage/gcs'
 
-# Questions
-Please contact [Payload](mailto:dev@payloadcms.com) with any questions about using this plugin template.
+const adapter = gcsAdapter({
+  options: {
+    // you can choose any method for authentication, and authorization which is being provided by `@google-cloud/storage`
+    keyFilename: './gcs-credentials.json',
+    //OR
+    credentials: JSON.parse(process.env.GCS_CREDENTIALS || '{}'), // this env variable will have stringify version of your credentials.json file
+  },
+  bucket: process.env.GCS_BUCKET,
+})
+// Now you can pass this adapter to the plugin
+
+export default buildConfig({
+	serverUrl: 'https://example.com' // Must be set to use pluggin
+	plugins: [
+		cloudStorage({
+	      collections: {
+	        'my-collection-slug': {
+	          adapter: adapter, // see docs for the adapter you want to use
+	        },
+	      },
+	    }),
+		adaptiveBirateVideos({
+			  collections: {
+				  'my-collection-slug': {keepOrginal: true} 
+			  }
+			  cloudStorage: {
+				  adapter: adapter
+			  }
+		})
+	]
+  // The rest of your config goes here
+})
+```
+
+### Custom Sizes And Bitrates
+If not resolutions array is provide, the plugin will use the default resolutions and bit rates. `size` specifies the pixel size of the short side of the video so the aspect ratio of any input video is maintained. 
+
+For Example: if you input a 4k 16:9 video (The standard landscape video aspect ratio), the plugin will change the video's height to and allow the width to proportionally change. 
+
+For the 1080 output the resulting video will be 1080p x 1920p, the standard 1080p pixel size.
+
+The principle is followed for square and portrait videos.
+
+_Note: The plugin will only output segments for resolutions that are less than or equal to the short side of the video. Meaning no upscaling is conducted. Example: a 1080p video will only produce output segments at resolutions that are specifed less than or eqaul to 1080._
+
+```ts
+//payload.config.ts
+import { buildConfig } from 'payload/config'
+import path from 'path'
+import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
+
+export default buildConfig({
+	serverUrl: 'https://example.com' // Must be set to use pluggin
+	plugins: [
+		adaptiveBirateVideos({
+			  collections: {
+				'my-collection-slug': 
+					{ 
+						keepOrginal: true,
+						resolutions: [
+							{
+								size: 1080 // pixel size 
+								bitrate: 8000000 // kilobits per second
+							},
+							// ...more custom resolutions
+							]
+					} 
+			  }
+		})
+	]
+  // The rest of your config goes here
+})
+```
+
+### Conditionally Enabling/Disabling
+
+The proper way to conditionally enable/disable this plugin is to use the `enabled` property.
+
+```ts
+//payload.config.ts
+adaptiveBirateVideos({
+  enabled: process.env.MY_CONDITION === 'true',
+  collections: {
+	  'media': {keepOrginal: true}
+  }
+}),
+```
+If the code is included _in any way in your config_ but conditionally disabled in another fashion, you may run into issues such as `Webpack Build Error: Can't Resolve 'fs' and 'stream'` or similar because the plugin must be run at all times in order to properly extend the webpack config.
+
+### Segments Collection Override
+Override anything on the `segments` collection by sending a [Payload Collection Config](https://payloadcms.com/docs/configuration/collections) to the `segmentsOverrides` property.
+
+```ts
+// payload.config.ts
+adaptiveBirateVideos({
+	// ...
+	segementOverrides: {
+		slug: "contact-forms",
+		access: {
+			read: () => true,
+			update: () => false,
+		},
+		fields: [
+			{
+			name: "custom-field",
+			type: "text"
+			}]
+		}
+})
+```
+
+### Custom Segment Length
+Optionally set the length of the segments the source video will be divided into. Default length is 2 seconds. The property takes in an number representing seconds.
+
+```ts
+// payload.config.ts
+adaptiveBirateVideos({
+	// ...
+	segmentLength: 5 //seconds. Default is 2 seconds.
+})
+```
+
+## Plugin options
+
+This plugin is configurable to work across many different Payload collections. A `*` denotes that the property is required.
+
+| Option              | Type                                                                                                                                          | Description                                                                                                                       |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `collections`*      | Records<string,[CollectionOptions]()>                                                                                                         | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
+| `cloudStorage`      | [StorageCollectionOptions](https://github.com/payloadcms/plugin-cloud-storage/blob/c4a492a62abc2f21b4cd6a7c97778acd8e831212/src/types.ts#L48) | Object with values set to storage options defining upload behavior.                                                               |
+| `enabled`           | `boolean`                                                                                                                                     | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
+| `segmentLength`     | `number`                                                                                                                                      | Set the output segment length in seconds for each resolution output. Default: 2                                                   |
+| `segementOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)                                                              | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
+
+**Collection-specific options:**
+
+| Option         | Type                | Description                                                                                    |
+| -------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `keepOrginal`* | `boolean`           | Conditionally set to keep the original source file after processing.                           |
+| `resolutions`  | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
+
+#### SegmentOverrideDefault
+
+```ts
+const SegmentOverrideDefault = {
+	slug: "segments",
+	labels: { singular: 'ABR Segment', plural: 'ABR Segments' },
+	access: {
+		read: () => true,
+		update: () => false,
+	},
+	upload: true,
+	fields: []
+}
+```
+
+#### ResolutionsDefault
+```ts
+const ResolutionsDefault = [
+	{
+		size: 144,
+		bitrate: 500000
+	},
+	{
+		size: 240,
+		bitrate: 800000
+	},
+	{
+		size: 360,
+		bitrate: 1000000
+	},
+	{
+		size: 480,
+		bitrate: 2500000
+	},
+	{
+		size: 720,
+		bitrate: 5000000
+	},
+	{
+		size: 1080,
+		bitrate: 8000000
+	},
+	{
+		size: 1440,
+		bitrate: 16000000
+	},
+	{
+		size: 2160,
+		bitrate: 35000000
+	},
+]
+```
+
+## Memory Considerations
+To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size. 
+
+This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
+
+See Payload Documentation on [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
+
+## Questions
+
+Please open an issue on this repo with any questions or issues about using this plugin.
