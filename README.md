@@ -198,28 +198,28 @@ This plugin is configurable to work across many different Payload collections. A
 
 ```ts
 const SegmentOverrideDefault = {
-	slug: "segments",
-	labels: { singular: 'ABR Segment', plural: 'ABR Segments' },
-	access: {
-		read: () => true,
-		update: () => false,
-	},
-	upload: true,
-	fields: []
+  slug: "segments",
+  labels: { singular: 'ABR Segment', plural: 'ABR Segments' },
+  access: {
+    read: () => true,
+    update: () => false,
+  },
+  upload: true,
+  fields: []
 }
 ```
 
 #### ResolutionsDefault
 ```ts
 const ResolutionsDefault = [
-	{ size: 144, bitrate: 500000 },
-	{ size: 240, bitrate: 800000 },
-	{ size: 360, bitrate: 1000000 },
-	{ size: 480, bitrate: 2500000 },
-	{ size: 720, bitrate: 5000000 },
-	{ size: 1080, bitrate: 8000000 },
-	{ size: 1440, bitrate: 16000000 },
-	{ size: 2160, bitrate: 35000000 },
+  { size: 144, bitrate: 500000 },
+  { size: 240, bitrate: 800000 },
+  { size: 360, bitrate: 1000000 },
+  { size: 480, bitrate: 2500000 },
+  { size: 720, bitrate: 5000000 },
+  { size: 1080, bitrate: 8000000 },
+  { size: 1440, bitrate: 16000000 },
+  { size: 2160, bitrate: 35000000 },
 ]
 ```
 
