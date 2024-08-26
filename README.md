@@ -63,8 +63,8 @@ const adapter = gcsAdapter({
 // Now you can pass this adapter to the plugin
 
 export default buildConfig({
-	serverUrl: 'https://example.com' // Must be set to use plugin
-	plugins: [
+  serverUrl: 'https://example.com' // Must be set to use plugin
+  plugins: [
     adaptiveBirateVideos({
       collections: {
         // The collection users upload source videos to
@@ -75,12 +75,12 @@ export default buildConfig({
       collections: {
         // The collection users upload source videos to
         'my-collection-slug': {
-            // see docs for the adapter you want to use
-            adapter: adapter,
+          // see docs for the adapter you want to use
+          adapter: adapter,
         },
         // the output collection created by the plugin
         'segments': { // Required name 'segments' unless overridden in segmentsOverride
-            adapter: adapter,
+          adapter: adapter,
         },
       },
     }),
@@ -149,19 +149,19 @@ Override anything on the `segments` collection by sending a [Payload Collecti
 ```ts
 // payload.config.ts
 adaptiveBirateVideos({
-	// ...
-	segmentOverrides: {
-		slug: "contact-forms",
-		access: {
-			read: () => true,
-			update: () => false,
-		},
-		fields: [
-			{
-			name: "custom-field",
-			type: "text"
-			}]
-		}
+  // ...
+  segmentOverrides: {
+    slug: "contact-forms",
+    access: {
+      read: () => true,
+      update: () => false,
+    },
+    fields: [
+    {
+      name: "custom-field",
+      type: "text"
+    }]
+  }
 })
 ```
 
@@ -172,7 +172,7 @@ Optionally set the length of the segments the source video will be divided into.
 // payload.config.ts
 adaptiveBirateVideos({
 	// ...
-	segmentLength: 5 //seconds. Default is 2 seconds.
+  segmentLength: 5 //seconds. Default is 2 seconds.
 })
 ```
 
