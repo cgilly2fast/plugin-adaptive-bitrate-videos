@@ -66,26 +66,23 @@ export default buildConfig({
 	serverUrl: 'https://example.com' // Must be set to use plugin
 	plugins: [
     adaptiveBirateVideos({
-      	collections: {
-			// The collection users upload source videos to
-        	'my-collection-slug': {keepOriginal: true}
-      	}
-      	cloudStorage: {
-       		adapter: adapter
-      	}
-	}),
-	cloudStorage({ // Cloud storage plugin must come after plugin
-    	collections: {
-			// The collection users upload source videos to
-        	'my-collection-slug': {
-          		// see docs for the adapter you want to use
-          		adapter: adapter,
-        	},
-        	// the output collection created by the plugin
-        	'segments': { // Required name 'segments' unless overridden in segmentsOverride
-          		adapter: adapter,
-        	},
-      	},
+      collections: {
+        // The collection users upload source videos to
+        'my-collection-slug': {keepOriginal: true}
+      }
+    }),
+    cloudStorage({ // Cloud storage plugin must come after plugin
+      collections: {
+        // The collection users upload source videos to
+        'my-collection-slug': {
+            // see docs for the adapter you want to use
+            adapter: adapter,
+        },
+        // the output collection created by the plugin
+        'segments': { // Required name 'segments' unless overridden in segmentsOverride
+            adapter: adapter,
+        },
+      },
     }),
   ]
   // The rest of your config goes here
@@ -113,19 +110,18 @@ export default buildConfig({
 	serverUrl: 'https://example.com' // Must be set to use pluggin
 	plugins: [
 		adaptiveBirateVideos({
-			  collections: {
-				'my-collection-slug':
-					{
-						keepOriginal: true,
-						resolutions: [
-							{
-								size: 1080 // pixel size
-								bitrate: 8000000 // kilobits per second
-							},
-							// ...more custom resolutions
-							]
-					}
-			  }
+			collections: {
+				'my-collection-slug':{
+          keepOriginal: true,
+          resolutions: [
+            {
+              size: 1080 // pixel size
+              bitrate: 8000000 // kilobits per second
+            },
+            // ...more custom resolutions
+          ]
+				}
+			}
 		})
 	]
   // The rest of your config goes here
@@ -154,7 +150,7 @@ Override anything on the `segments` collection by sending a [Payload Collecti
 // payload.config.ts
 adaptiveBirateVideos({
 	// ...
-	segementOverrides: {
+	segmentOverrides: {
 		slug: "contact-forms",
 		access: {
 			read: () => true,
@@ -187,10 +183,9 @@ This plugin is configurable to work across many different Payload collections. A
 | Option              | Type                                                                                                                                          | Description                                                                                                                       |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `collections`*      | Records<string,[CollectionOptions]()>                                                                                                         | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
-| `cloudStorage`      | [StorageCollectionOptions](https://github.com/payloadcms/plugin-cloud-storage/blob/c4a492a62abc2f21b4cd6a7c97778acd8e831212/src/types.ts#L48) | Object with values set to storage options defining upload behavior.                                                               |
 | `enabled`           | `boolean`                                                                                                                                     | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
 | `segmentLength`     | `number`                                                                                                                                      | Set the output segment length in seconds for each resolution output. Default: 2                                                   |
-| `segementOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)                                                              | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
+| `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)                                                              | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
 
 **Collection-specific options:**
 
