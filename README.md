@@ -184,15 +184,15 @@ This plugin is configurable to work across many different Payload collections. A
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `collections`*      | Records<string,[CollectionOptions]()>                                                                                                         | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
 | `enabled`           | `boolean`                                                                                                                                     | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
-| `segmentLength`     | `number`                                                                                                                                      | Set the output segment length in seconds for each resolution output. Default: 2                                                   |
 | `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)                                                              | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
 
 **Collection-specific options:**
 
-| Option         | Type                | Description                                                                                    |
-| -------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
-| `keepOrginal`* | `boolean`           | Conditionally set to keep the original source file after processing.                           |
-| `resolutions`  | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
+| Option          | Type                | Description                                                                                    |
+| --------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `keepOriginal`*  | `boolean`           | Conditionally set to keep the original source file after processing.                           |
+| `resolutions`   | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
+| `segmentLength` | `number`            | Set the output segment length in seconds for each resolution output. Default: 2                |
 
 #### SegmentOverrideDefault
 
@@ -211,7 +211,7 @@ const SegmentOverrideDefault = {
 
 #### ResolutionsDefault
 ```ts
-const ResolutionsDefault = [
+const DefaultResolutions = [
   { size: 144, bitrate: 500000 },
   { size: 240, bitrate: 800000 },
   { size: 360, bitrate: 1000000 },
