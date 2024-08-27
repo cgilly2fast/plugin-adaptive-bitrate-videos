@@ -1,4 +1,5 @@
 import ffmpeg, { FfprobeStream } from 'fluent-ffmpeg'
+import http from 'http'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -14,7 +15,7 @@ import { calcDimensions, getFrameRate } from '../utils/ffmpegUtils'
 export async function sliceVideo(
     videoName: string,
     inputPath: string,
-    tempOuputDir: string,
+    tempOutputDir: string,
     possibleResolutions: PossibleResolutions,
     possibleBitrates: PossibleBitrates,
     baseURL: string,
@@ -64,8 +65,25 @@ export async function sliceVideo(
             const resolutions = possibleResolutions.filter(
                 resolution => resolution <= maxResolution,
             )
+
+            const copiedVideoPath = path.join(tempOutputDir, `${path.basename(inputPath)}`)
+            await new Promise<void>((resolveCopy, rejectCopy) => {
+                const file = fs.createWriteStream(copiedVideoPath)
+                http.get(inputPath, resp => {
+                    resp.pipe(file)
+
+                    file.on('finish', () => {
+                        file.close()
+                        console.log('Download Completed')
+                        resolveCopy()
+                    })
+                    file.on('error', err => {
+                        rejectCopy(err)
+                    })
+                })
+            })
             for (const resolution of resolutions) {
-                const outResolutionDir = path.join(tempOuputDir, `${resolution}`)
+                const outResolutionDir = path.join(tempOutputDir, `${resolution}`)
                 if (!fs.existsSync(outResolutionDir)) {
                     fs.mkdirSync(outResolutionDir, { recursive: true })
                 }
@@ -74,9 +92,9 @@ export async function sliceVideo(
                     outResolutionDir,
                     `${videoName}-${resolution}p-segment%d.ts`,
                 )
-
+                console.log(inputPath, resolution, orientation)
                 await new Promise<void>((resolveSegment, rejectSegment) => {
-                    ffmpeg(inputPath)
+                    ffmpeg(copiedVideoPath)
                         .size(`${resolution}${orientation}?`)
                         .outputOptions([
                             '-map 0',

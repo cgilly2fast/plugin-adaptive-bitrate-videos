@@ -1,18 +1,47 @@
 import { CollectionConfig, TypeWithID } from 'payload/types'
 
+/**
+ * Configuration options for the plugin.
+ */
 export interface PluginOptions {
     /**
-     * Enable or disable plugin
+     * Enable or disable the plugin.
      * @default false
      */
     enabled?: boolean
+
+    /**
+     * Object with keys set to the slug of collections you want to enable the plugin for,
+     * and values set to collection-specific options.
+     */
     collections: Record<string, CollectionOptions>
+
+    /**
+     * Object that overrides the default collection used to store reference to the output segments.
+     * @default SegmentOverrideDefault
+     */
     segmentsOverrides?: Partial<CollectionConfig>
 }
 
+/**
+ * Options specific to each collection.
+ */
 export interface CollectionOptions {
+    /**
+     * Whether to keep the original source file after processing.
+     */
     keepOriginal: boolean
+
+    /**
+     * Custom resolutions for the plugin to output segment videos to.
+     * @default ResolutionsDefault
+     */
     resolutions?: Resolution[]
+
+    /**
+     * The output segment length in seconds for each resolution output.
+     * @default 2
+     */
     segmentDuration?: number
 }
 

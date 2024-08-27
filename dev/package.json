@@ -16,9 +16,11 @@
     "payload": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts payload"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.12.1",
     "@payloadcms/bundler-webpack": "^1.0.0",
     "@payloadcms/db-mongodb": "^1.0.0",
     "@payloadcms/plugin-cloud": "^2.0.0",
+    "@payloadcms/plugin-cloud-storage": "^1.1.3",
     "@payloadcms/richtext-slate": "^1.0.0",
     "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
