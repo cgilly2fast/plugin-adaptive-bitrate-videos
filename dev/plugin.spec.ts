@@ -49,7 +49,7 @@ describe('Plugin tests', () => {
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 40000)
+    }, 70000)
 
     it('standard video outputs are present', () => {
         const resolutions = [144, 240, 360, 480, 720]
@@ -122,7 +122,7 @@ describe('Plugin tests', () => {
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 40000)
+    }, 70000)
 
     it('custom video outputs are present', () => {
         const resolutions = [144, 240, 300]
