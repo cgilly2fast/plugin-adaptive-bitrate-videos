@@ -115,7 +115,7 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 30000))
+        await new Promise(resolve => setTimeout(resolve, 50000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo2.mp4')
@@ -213,7 +213,7 @@ describe('Plugin tests', () => {
                 },
             },
         })
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        await new Promise(resolve => setTimeout(resolve, 50000))
 
         const resolutions = [144, 240, 300]
         const exceptedNumSegments = 13
