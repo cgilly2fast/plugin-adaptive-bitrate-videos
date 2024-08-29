@@ -10,7 +10,9 @@ This plugin extends Payload CMS to provide Adaptive Bitrate (ABR) streaming capa
 
 ## Installation
 
-`yarn add plugin-adaptive-bitrate-videos` or `npm install plugin-adaptive-bitrate-videos`
+`yarn add plugin-adaptive-bitrate-videos` 
+or 
+`npm install plugin-adaptive-bitrate-videos`
 
 ## Usage
 

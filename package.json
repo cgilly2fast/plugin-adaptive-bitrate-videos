@@ -1,10 +1,13 @@
 {
   "name": "plugin-adaptive-bitrate-videos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage:": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos",
   "repository": "git@github.com:cgilly2fast/plugin-adaptive-bitrate-videos.git",
   "description": "Payload plugin for automatic adaptive bitrate process of videos.",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "types": "dist/index.d.ts",
   "keywords": [
     "payload",
