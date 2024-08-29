@@ -17,7 +17,6 @@ export const getAfterOperationHook =
 
             const baseURL = req.payload.config.serverURL.replace(/\/$/, '')
             setTimeout(async () => {
-                console.log('Processing video url:', url)
                 fetch(`${baseURL}/api/process-video`, {
                     method: 'POST',
                     headers: {

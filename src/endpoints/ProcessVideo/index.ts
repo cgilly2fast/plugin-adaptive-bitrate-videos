@@ -9,7 +9,6 @@ import { getUploadBuffer, getUploadPath } from './utils/fileUploadUtils'
 
 const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
     try {
-        console.log('req.body', req.body)
         const {
             inputPath,
             baseURL,
@@ -23,14 +22,10 @@ const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
         } = req.body as ProcessVideoParams
 
         const decodedInputPath = decodeURIComponent(baseURL + inputPath)
-        console.log(inputPath)
 
         const videoName = path.basename(decodedInputPath, path.extname(decodedInputPath))
-        console.log('videoName', videoName)
         const tempDir = path.join(__dirname, 'temp')
-        console.log('tempDir', tempDir)
         const tempOutputDir = path.join(tempDir, videoName)
-        console.log('outDir', tempOutputDir)
 
         if (!fs.existsSync(tempOutputDir)) {
             fs.mkdirSync(tempOutputDir, { recursive: true })

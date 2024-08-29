@@ -180,17 +180,17 @@ adaptiveBirateVideos({
 
 This plugin is configurable to work across many different Payload collections. A `*` denotes that the property is required.
 
-| Option              | Type                                                                                                                                          | Description                                                                                                                       |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `collections`*      | Records<string,[CollectionOptions]()>                                                                                                         | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
-| `enabled`           | `boolean`                                                                                                                                     | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
-| `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)                                                              | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
+| Option              | Type                                                                             | Description                                                                                                                       |
+| ------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `collections`*      | Records<string,[CollectionOptions]()>                                            | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
+| `enabled`           | `boolean`                                                                        | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
+| `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections) | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
 
 **Collection-specific options:**
 
 | Option          | Type                | Description                                                                                    |
 | --------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
-| `keepOriginal`*  | `boolean`           | Conditionally set to keep the original source file after processing.                           |
+| `keepOriginal`* | `boolean`           | Conditionally set to keep the original source file after processing.                           |
 | `resolutions`   | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
 | `segmentLength` | `number`            | Set the output segment length in seconds for each resolution output. Default: 2                |
 
@@ -223,12 +223,55 @@ const DefaultResolutions = [
 ]
 ```
 
+## Example Front-end Usage
+
+Any video player that can play .m3u8 files can be used. Here is a simple example using the `react-hls-player`.
+```tsx
+import React, { useRef, useState } from 'react';
+import ReactHlsPlayer from 'react-hls-player';
+
+const SimpleHlsPlayer = () => {
+  const playerRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto">
+      <ReactHlsPlayer
+        id="videoElement"
+        playerRef={playerRef}
+        src="https://example.com/path/to/your/manifest.m3u8"
+        className="w-full aspect-video"
+        autoPlay={false}
+        controls={true}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        muted
+        playsInline
+      />
+      <div className="mt-4 text-center">
+        <p>Player status: {isPlaying ? 'Playing' : 'Paused'}</p>
+      </div>
+    </div>
+  );
+};
+
+export default SimpleHlsPlayer;
+```
+
 ## Memory Considerations
 To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size.
 
 This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
 
-See Payload Documentation on [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
+See Payload Documentation on setting[upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
 
 ## Questions
 

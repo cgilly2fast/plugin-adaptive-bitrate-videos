@@ -42,14 +42,14 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 60000))
+        await new Promise(resolve => setTimeout(resolve, 50000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo.mp4')
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 80000)
+    }, 70000)
 
     it('standard video outputs are present', () => {
         const resolutions = [144, 240, 360, 480, 720]
@@ -115,14 +115,14 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 60000))
+        await new Promise(resolve => setTimeout(resolve, 40000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo2.mp4')
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 80000)
+    }, 60000)
 
     it('custom video outputs are present', () => {
         const resolutions = [144, 240, 300]

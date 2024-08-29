@@ -25,7 +25,6 @@ export async function sliceVideo(
     outputCollectionSlug: string,
 ): Promise<VideoInfo> {
     return new Promise((resolve, reject) => {
-        console.log(inputPath)
         ffmpeg.ffprobe(inputPath, async (err, metadata) => {
             if (err) return reject(err)
 
@@ -74,7 +73,6 @@ export async function sliceVideo(
 
                     file.on('finish', () => {
                         file.close()
-                        console.log('Download Completed')
                         resolveCopy()
                     })
                     file.on('error', err => {
