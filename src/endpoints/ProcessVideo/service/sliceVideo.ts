@@ -1,5 +1,7 @@
 import ffmpeg, { FfprobeStream } from 'fluent-ffmpeg'
 import http from 'http'
+import https from 'https'
+import { URL } from 'url'
 import fs from 'fs'
 import { promises as fsPromises } from 'fs'
 import path from 'path'
@@ -68,7 +70,8 @@ export async function sliceVideo(
             const copiedVideoPath = path.join(tempOutputDir, `${path.basename(inputPath)}`)
             await new Promise<void>((resolveCopy, rejectCopy) => {
                 const file = fs.createWriteStream(copiedVideoPath)
-                http.get(inputPath, resp => {
+                const protocol = copiedVideoPath.toLowerCase().startsWith('https:') ? https : http
+                protocol.get(inputPath, resp => {
                     resp.pipe(file)
 
                     file.on('finish', () => {
