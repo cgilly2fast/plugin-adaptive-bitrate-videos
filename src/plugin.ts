@@ -6,8 +6,6 @@ import { getAfterOperationHook } from './hooks/afterOperation'
 import processVideo from './endpoints/ProcessVideo'
 import { extendWebpackConfig } from './webpack'
 
-type PluginType = (pluginOptions: PluginOptions) => Plugin
-
 const DefaultResolution = [
     { size: 144, bitrate: 500000 },
     { size: 240, bitrate: 800000 },
@@ -19,7 +17,7 @@ const DefaultResolution = [
     { size: 2160, bitrate: 35000000 },
 ]
 
-export const samplePlugin =
+export const abrVideos =
     (pluginOptions: PluginOptions): Plugin =>
     incomingConfig => {
         let config = { ...incomingConfig }
@@ -62,7 +60,6 @@ export const samplePlugin =
             }),
             generateSegmentsCollection(pluginOptions),
         ]
-
         config.endpoints = [
             ...(config.endpoints || []),
             {

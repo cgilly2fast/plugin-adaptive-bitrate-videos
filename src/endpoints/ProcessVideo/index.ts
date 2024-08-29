@@ -43,7 +43,6 @@ const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
             possibleResolutions.push(size)
         }
 
-        const uploadPathToOutputCollection = getUploadPath(req.payload, outputCollectionSlug)
         const uploadBufferToOutputCollection = getUploadBuffer(req.payload, outputCollectionSlug)
         const uploadBufferToInputCollection = getUploadBuffer(req.payload, inputCollectionSlug)
 
@@ -55,7 +54,7 @@ const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
             possibleBitrates,
             baseURL,
             segmentDuration,
-            uploadPathToOutputCollection,
+            uploadBufferToOutputCollection,
             outputCollectionSlug,
         )
         await createPlaylistManifests(
@@ -77,7 +76,10 @@ const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
         fs.rmSync(tempDir, { recursive: true, force: true })
 
         if (!keepOriginal) {
-            //delete orginal from payload
+            req.payload.delete({
+                collection: inputCollectionSlug,
+                id: originalID,
+            })
         }
 
         return res.json({ success: true })

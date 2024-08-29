@@ -4,30 +4,39 @@ import Users from './collections/Users'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
 import { slateEditor } from '@payloadcms/richtext-slate'
-import { samplePlugin } from '../../src/index'
-import { TestMedia } from './collections/TestMedia'
-import { cloudStorage } from '@payloadcms/plugin-cloud-storage'
-import { gcsAdapter } from '@payloadcms/plugin-cloud-storage/gcs'
+import { Media } from './collections/Media'
+// import { cloudStorage } from '@payloadcms/plugin-cloud-storage'
+// import { gcsAdapter } from '@payloadcms/plugin-cloud-storage/gcs'
+import { abrVideos } from '../../dist'
+import { Videos } from './collections/Videos'
+import { OverrideSegments } from './collections/OverrideSegments'
 
-const sanitizePrivateKey = (key: any) => {
-    if (typeof key !== 'string') return ''
-
-    return key.replace(/\\n/g, '\n')
-}
-
-export const serviceAccount = {
-    type: process.env.SERVICE_ACCOUNT_TYPE!,
-    projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
-    private_key_id: process.env.SERVICE_ACCOUNT_PRIVATE_KEY_ID,
-    private_key: sanitizePrivateKey(process.env.SERVICE_ACCOUNT_PRIVATE_KEY),
-    client_email: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
-    client_id: process.env.SERVICE_ACCOUNT_CLIENT_ID,
-    auth_uri: process.env.SERVICE_ACCOUNT_AUTH_URL,
-    token_uri: process.env.SERVICE_ACCOUNT_TOKEN_URL,
-    auth_provider_x509_cert_url: process.env.SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
-    universe_domain: process.env.SERVICE_ACCOUNT_UNIVERSE_DOMAIN,
-}
+// const sanitizePrivateKey = (key: any) => {
+//     if (typeof key !== 'string') return ''
+//
+//     return key.replace(/\\n/g, '\n')
+// }
+//
+// export const serviceAccount = {
+//     type: process.env.SERVICE_ACCOUNT_TYPE!,
+//     projectId: process.env.SERVICE_ACCOUNT_PROJECT_ID,
+//     private_key_id: process.env.SERVICE_ACCOUNT_PRIVATE_KEY_ID,
+//     private_key: sanitizePrivateKey(process.env.SERVICE_ACCOUNT_PRIVATE_KEY),
+//     client_email: process.env.SERVICE_ACCOUNT_CLIENT_EMAIL,
+//     client_id: process.env.SERVICE_ACCOUNT_CLIENT_ID,
+//     auth_uri: process.env.SERVICE_ACCOUNT_AUTH_URL,
+//     token_uri: process.env.SERVICE_ACCOUNT_TOKEN_URL,
+//     auth_provider_x509_cert_url: process.env.SERVICE_ACCOUNT_AUTH_PROVIDER_X509_CERT_URL,
+//     client_x509_cert_url: process.env.SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
+//     universe_domain: process.env.SERVICE_ACCOUNT_UNIVERSE_DOMAIN,
+// }
+//
+// const adapter = gcsAdapter({
+//     options: {
+//         credentials: serviceAccount,
+//     },
+//     bucket: process.env.PAYLOAD_PUBLIC_FB_SB,
+// })
 
 export default buildConfig({
     admin: {
@@ -51,8 +60,8 @@ export default buildConfig({
     },
     cors: '*',
     editor: slateEditor({}),
-    collections: [Users, TestMedia],
-    serverURL: process.env.SERVER_URL,
+    collections: [Users, Media, Videos],
+    serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
     typescript: {
         outputFile: path.resolve(__dirname, 'payload-types.ts'),
     },
@@ -60,21 +69,38 @@ export default buildConfig({
         schemaOutputFile: path.resolve(__dirname, 'generated-schema.graphql'),
     },
     plugins: [
-        samplePlugin({ enabled: true, collections: { 'test-media': { keepOriginal: true } } }),
-        cloudStorage({
+        abrVideos({
+            enabled: true,
             collections: {
-                'test-media': {
-                    adapter: gcsAdapter({
-                        options: {
-                            credentials: serviceAccount,
-                        },
-                        bucket: process.env.PAYLOAD_PUBLIC_FB_SB,
-                    }),
-                    prefix: 'test-media',
-                    disableLocalStorage: true,
+                media: {
+                    keepOriginal: false,
+                },
+                videos: {
+                    keepOriginal: true,
+                    resolutions: [
+                        { size: 144, bitrate: 500000 },
+                        { size: 240, bitrate: 800000 },
+                        { size: 300, bitrate: 1000000 },
+                    ],
+                    segmentDuration: 1,
                 },
             },
+            segmentsOverrides: OverrideSegments,
         }),
+        // cloudStorage({
+        //     collections: {
+        //         media: {
+        //             adapter: adapter,
+        //             prefix: 'test-media',
+        //             disableLocalStorage: true,
+        //         },
+        //         'override-segments': {
+        //             adapter: adapter,
+        //             prefix: 'segments',
+        //             disableLocalStorage: true,
+        //         },
+        //     },
+        // }),
     ],
     db: mongooseAdapter({
         url: process.env.DATABASE_URI!,

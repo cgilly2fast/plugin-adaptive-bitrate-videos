@@ -10,8 +10,12 @@
     "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "../",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "rootDir": "./src",
     "jsx": "react",
     "paths": {
       "payload/generated-types": [

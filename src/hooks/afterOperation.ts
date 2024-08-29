@@ -9,7 +9,6 @@ export const getAfterOperationHook =
         outputCollectionSlug,
     }: GetAfterOperationHookParams): CollectionAfterOperationHook =>
     async ({ operation, result, req, collection }) => {
-        console.log('operations', operation)
         if (operation === 'create') {
             const { id, filename, mimeType, url, createdAt, updatedAt, ...data } = result as any
             if (!mimeType.startsWith('video/')) {

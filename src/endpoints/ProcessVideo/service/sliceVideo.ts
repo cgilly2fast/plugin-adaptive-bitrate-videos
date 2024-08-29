@@ -1,13 +1,14 @@
 import ffmpeg, { FfprobeStream } from 'fluent-ffmpeg'
 import http from 'http'
 import fs from 'fs'
+import { promises as fsPromises } from 'fs'
 import path from 'path'
 import {
     PlaylistInfo,
     PossibleBitrates,
     PossibleResolutions,
     Segment,
-    UploadPathFunc,
+    UploadBufferFunc,
     VideoInfo,
 } from '../../../types'
 import { calcDimensions, getFrameRate } from '../utils/ffmpegUtils'
@@ -20,13 +21,12 @@ export async function sliceVideo(
     possibleBitrates: PossibleBitrates,
     baseURL: string,
     segmentDuration: number,
-    uploadPath: UploadPathFunc,
+    uploadBuffer: UploadBufferFunc,
     outputCollectionSlug: string,
 ): Promise<VideoInfo> {
     return new Promise((resolve, reject) => {
         console.log(inputPath)
         ffmpeg.ffprobe(inputPath, async (err, metadata) => {
-            console.log('metadata', metadata)
             if (err) return reject(err)
 
             const duration = metadata.format.duration
@@ -102,13 +102,13 @@ export async function sliceVideo(
                             '-level 3.0',
                             '-c:v libx264',
                             '-b:v 500k',
-                            '-force_key_frames expr:gte(t,n_forced*2)',
+                            `-force_key_frames expr:gte(t,n_forced*${segmentDuration})`,
                             '-c:a aac',
                             '-b:a 128k',
                             '-hls_list_size 0',
                             '-start_number 0',
                             '-hls_init_time 0',
-                            '-hls_time 2',
+                            `-hls_time ${segmentDuration}`,
                             `-hls_segment_filename ${segmentFilePattern}`,
                             '-f hls',
                         ])
@@ -134,20 +134,20 @@ export async function sliceVideo(
                     if (i === numSegments - 1) {
                         computedDuration = duration % segmentDuration
                     }
+                    const buffer = await fsPromises.readFile(segmentPath)
 
-                    // const destination = `videos/${videoName}/${resolution}p/segment${i}.ts`
-                    promises.push(uploadPath(segmentPath))
-                    console.log('segmentPath', segmentPath)
+                    promises.push(
+                        uploadBuffer(buffer, 'video/mp2t', segmentName, buffer.byteLength),
+                    )
 
                     segments.push({
                         index: i,
-                        path: `${baseURL}/api/${outputCollectionSlug}/${segmentName}`,
+                        path: `${baseURL}/${outputCollectionSlug}/${segmentName}`,
                         duration: computedDuration,
                     })
                 }
 
-                await Promise.all(promises)
-
+                const res = await Promise.all(promises)
                 const bitrate = possibleBitrates[resolution] / 1000
 
                 playlists.push({

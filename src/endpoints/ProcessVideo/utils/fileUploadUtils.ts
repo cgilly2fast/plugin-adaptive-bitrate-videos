@@ -3,8 +3,8 @@ import { UploadBufferFunc, UploadPathFunc } from '../../../types'
 
 export const getUploadPath =
     (payload: Payload, outputCollectionSlug: string): UploadPathFunc =>
-    async (path: string) => {
-        return await payload.create({ collection: outputCollectionSlug, filePath: path, data: {} })
+    (path: string) => {
+        return payload.create({ collection: outputCollectionSlug, filePath: path, data: {} })
     }
 
 export const getUploadBuffer =
@@ -17,7 +17,7 @@ export const getUploadBuffer =
         originalData?: Record<string, any>,
     ) => {
         const file = { data, mimetype, name, size }
-        return await payload.create({
+        return payload.create({
             collection: outputCollectionSlug,
             file,
             data: originalData ?? {},
