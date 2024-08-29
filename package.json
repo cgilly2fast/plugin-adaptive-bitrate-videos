@@ -1,9 +1,9 @@
 {
-  "name": "abr-payload-plugin",
-  "version": "0.0.0=1",
-  "homepage:": "https://payloadcms.com",
-  "repository": "git@github.com:payloadcms/payload-plugin-template.git",
-  "description": "Blank plugin template for Payload",
+  "name": "plugin-adaptive-bitrate-videos",
+  "version": "1.0.0",
+  "homepage:": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos",
+  "repository": "git@github.com:cgilly2fast/plugin-adaptive-bitrate-videos.git",
+  "description": "Payload plugin for automatic adaptive bitrate process of videos.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "keywords": [
@@ -22,7 +22,7 @@
     "clean": "rimraf dist && rimraf dev/yarn.lock",
     "prepublishOnly": "yarn clean && yarn build && cd dev && yarn test"
   },
-  "author": "dev@payloadcms.com",
+  "author": "colbygilbert95@gmail.com",
   "license": "MIT",
   "peerDependencies": {
     "payload": "^2.0.0"
