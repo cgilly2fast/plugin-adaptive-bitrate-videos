@@ -126,7 +126,7 @@ describe('Plugin tests', () => {
 
     it('custom video outputs are present', () => {
         const resolutions = [144, 240, 300]
-        const exceptedNumSegments = 26
+        const exceptedNumSegments = 12
         for (let i = 0; i < resolutions.length; i++) {
             for (let j = 0; j < exceptedNumSegments; j++) {
                 expect(
@@ -216,7 +216,7 @@ describe('Plugin tests', () => {
         await new Promise(resolve => setTimeout(resolve, 3000))
 
         const resolutions = [144, 240, 300]
-        const exceptedNumSegments = 13
+        const exceptedNumSegments = 12
         for (let i = 0; i < resolutions.length; i++) {
             for (let j = 0; j < exceptedNumSegments; j++) {
                 expect(

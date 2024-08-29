@@ -90,10 +90,18 @@ export async function sliceVideo(
                     outResolutionDir,
                     `${videoName}-${resolution}p-segment%d.ts`,
                 )
+
+                let sizeParam = ''
+                if (orientation === 'x') {
+                    sizeParam = `${resolution}x?`
+                } else {
+                    sizeParam = `?x${resolution}`
+                }
+
                 console.log(inputPath, resolution, orientation)
                 await new Promise<void>((resolveSegment, rejectSegment) => {
                     ffmpeg(copiedVideoPath)
-                        .size(`${resolution}${orientation}?`)
+                        .size(sizeParam)
                         .outputOptions([
                             '-map 0',
                             '-profile:v baseline',
