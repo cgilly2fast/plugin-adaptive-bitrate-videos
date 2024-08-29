@@ -25,8 +25,11 @@
     "clean": "rimraf dist && rimraf dev/yarn.lock",
     "prepublishOnly": "yarn clean && yarn build && cd dev && yarn test"
   },
-  "author": "colbygilbert95@gmail.com",
-  "license": "MIT",
+    "author": "Colby Gilbert",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos/issues"
+    },
   "peerDependencies": {
     "payload": "^2.0.0"
   },

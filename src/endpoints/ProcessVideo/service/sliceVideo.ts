@@ -70,6 +70,7 @@ export async function sliceVideo(
             const copiedVideoPath = path.join(tempOutputDir, `${path.basename(inputPath)}`)
             await new Promise<void>((resolveCopy, rejectCopy) => {
                 const file = fs.createWriteStream(copiedVideoPath)
+                console.log(copiedVideoPath)
                 const protocol = copiedVideoPath.toLowerCase().startsWith('https:') ? https : http
                 protocol.get(inputPath, resp => {
                     resp.pipe(file)

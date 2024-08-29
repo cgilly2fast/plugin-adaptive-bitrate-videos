@@ -227,10 +227,10 @@ const DefaultResolutions = [
 
 ## Example Front-end Usage
 
-Any video player that can play .m3u8 files can be used. Here is a simple example using the `react-hls-player`.
+Any video player that can play .m3u8 files can be used. Here is a simple example using the `react-hls-video-player`. View docs for [react-hls-video-player here.]('https://github.com/cgilly2fast/react-hls')
 ```tsx
 import React, { useRef, useState } from 'react';
-import ReactHlsPlayer from 'react-hls-player';
+import ReactHlsPlayer from 'react-hls-video-player';
 
 const SimpleHlsPlayer = () => {
   const playerRef = useRef(null);
