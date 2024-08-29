@@ -42,7 +42,7 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 17000))
+        await new Promise(resolve => setTimeout(resolve, 30000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo.mp4')
@@ -115,7 +115,7 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 17000))
+        await new Promise(resolve => setTimeout(resolve, 30000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo2.mp4')
