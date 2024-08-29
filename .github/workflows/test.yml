@@ -29,6 +29,13 @@ jobs:
           cd dev
           yarn install
 
+      - name: Set up environment variables
+        run: |
+          cd dev
+          echo "DATABASE_URI=mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0" >> .env
+          echo "PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000" >> .env
+          echo "PAYLOAD_SECRET=hellohereisasecretforyou" >> .env
+
       - name: Run tests
         run: |
           cd dev
