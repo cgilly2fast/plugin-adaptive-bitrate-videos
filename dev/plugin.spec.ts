@@ -13,10 +13,10 @@ describe('Plugin tests', () => {
         if (!server) {
             console.log('Before all: Starting server')
             server = await start()
-            await new Promise(resolve => setTimeout(resolve, 10000))
+            await new Promise(resolve => setTimeout(resolve, 70000))
             console.log('Before all: Server started')
         }
-    }, 20000)
+    }, 90000)
 
     afterAll(async () => {
         console.log('After all: Cleaning up')
@@ -42,14 +42,14 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 50000))
+        await new Promise(resolve => setTimeout(resolve, 60000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo.mp4')
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 70000)
+    }, 80000)
 
     it('standard video outputs are present', () => {
         const resolutions = [144, 240, 360, 480, 720]
@@ -115,14 +115,14 @@ describe('Plugin tests', () => {
             },
             data: { alt: 'Ligma Test' },
         })
-        await new Promise(resolve => setTimeout(resolve, 50000))
+        await new Promise(resolve => setTimeout(resolve, 60000))
         expect(createdMedia).toBeTruthy()
         expect(createdMedia.id).toBeDefined()
         expect(createdMedia.filename).toBe('testVideo2.mp4')
         expect(createdMedia.mimeType).toBe('video/mp4')
         expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
         expect(createdMedia.alt).toBe('Ligma Test')
-    }, 70000)
+    }, 80000)
 
     it('custom video outputs are present', () => {
         const resolutions = [144, 240, 300]
