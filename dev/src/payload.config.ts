@@ -78,9 +78,9 @@ export default buildConfig({
                 videos: {
                     keepOriginal: true,
                     resolutions: [
-                        { size: 144, bitrate: 500000 },
-                        { size: 240, bitrate: 800000 },
-                        { size: 300, bitrate: 1000000 },
+                        { size: 144, bitrate: 150 },
+                        { size: 240, bitrate: 250 },
+                        { size: 300, bitrate: 500 },
                     ],
                     segmentDuration: 1,
                 },

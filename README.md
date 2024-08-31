@@ -118,7 +118,7 @@ export default buildConfig({
           resolutions: [
             {
               size: 1080 // pixel size
-              bitrate: 8000000 // kilobits per second
+              bitrate: 4000 // kilobits per second
             },
             // ...more custom resolutions
           ]
@@ -214,14 +214,15 @@ const SegmentOverrideDefault = {
 #### ResolutionsDefault
 ```ts
 const DefaultResolutions = [
-  { size: 144, bitrate: 500000 },
-  { size: 240, bitrate: 800000 },
-  { size: 360, bitrate: 1000000 },
-  { size: 480, bitrate: 2500000 },
-  { size: 720, bitrate: 5000000 },
-  { size: 1080, bitrate: 8000000 },
-  { size: 1440, bitrate: 16000000 },
-  { size: 2160, bitrate: 35000000 },
+    { size: 144, bitrate: 150 },
+    { size: 240, bitrate: 250 },
+    { size: 360, bitrate: 500 },
+    { size: 480, bitrate: 1000 },
+    { size: 720, bitrate: 1500 },
+    { size: 1080, bitrate: 4000 },
+    { size: 1440, bitrate: 6000 },
+    { size: 2160, bitrate: 10000 },
+
 ]
 ```
 

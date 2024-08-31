@@ -71,7 +71,7 @@ export async function sliceVideo(
             await new Promise<void>((resolveCopy, rejectCopy) => {
                 const file = fs.createWriteStream(copiedVideoPath)
                 console.log(copiedVideoPath)
-                const protocol = copiedVideoPath.toLowerCase().startsWith('https:') ? https : http
+                const protocol = inputPath.toLowerCase().startsWith('https:') ? https : http
                 protocol.get(inputPath, resp => {
                     resp.pipe(file)
 
@@ -102,7 +102,7 @@ export async function sliceVideo(
                     sizeParam = `?x${resolution}`
                 }
 
-                console.log(inputPath, resolution, orientation)
+                console.log(inputPath, resolution, orientation, sizeParam)
                 await new Promise<void>((resolveSegment, rejectSegment) => {
                     ffmpeg(copiedVideoPath)
                         .size(sizeParam)
@@ -111,7 +111,7 @@ export async function sliceVideo(
                             '-profile:v baseline',
                             '-level 3.0',
                             '-c:v libx264',
-                            '-b:v 500k',
+                            `-b:v ${possibleBitrates[resolution]}k`,
                             `-force_key_frames expr:gte(t,n_forced*${segmentDuration})`,
                             '-c:a aac',
                             '-b:a 128k',

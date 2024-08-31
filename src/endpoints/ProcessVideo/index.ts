@@ -76,7 +76,7 @@ const processVideo: PayloadHandler = async (req: PayloadRequest, res, next) => {
                 id: originalID,
             })
         }
-
+        console.log('Video processing done')
         return res.json({ success: true })
     } catch (error: any) {
         console.error('Error in processing video:', error)

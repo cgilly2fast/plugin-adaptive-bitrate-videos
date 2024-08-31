@@ -23,3 +23,7 @@ export const start = async (args?: Partial<InitOptions>) => {
 
     return app.listen(PORT)
 }
+
+if (require.main === module) {
+    start()
+}

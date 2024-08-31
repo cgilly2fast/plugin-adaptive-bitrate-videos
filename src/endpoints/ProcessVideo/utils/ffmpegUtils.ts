@@ -8,7 +8,7 @@ export function calcDimensions(aspectRatio: number, orientation: string, resolut
         height = Math.round(width / aspectRatio)
     } else {
         height = resolution
-        width = Math.round(height * aspectRatio)
+        width = Math.round(height / aspectRatio)
     }
 
     return { width, height }

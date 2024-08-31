@@ -17,7 +17,9 @@ export async function createMasterManifest(
         const { resolution, width, height } = playlist
         const bitrate = possibleBitrates[resolution]
         m3u8Content.push(
-            `#EXT-X-STREAM-INF:BANDWIDTH=${bitrate},RESOLUTION=${width}x${height},CODECS="mp4a.40.5,avc1.4d401e",FRAME-RATE-${frameRate}.0,CLOSED-CAPTIONS=NONE`,
+            `#EXT-X-STREAM-INF:BANDWIDTH=${
+                bitrate * 1000
+            },RESOLUTION=${width}x${height},CODECS="mp4a.40.5,avc1.4d401e",FRAME-RATE-${frameRate}.0,CLOSED-CAPTIONS=NONE`,
             `${baseURL}/${outputCollectionSlug}/${videoName}-${resolution}p-playlist.m3u8`,
         )
     })
