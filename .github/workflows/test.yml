@@ -1,46 +1,57 @@
 name: Build
-
 on:
   pull_request:
     types: [ opened, reopened, synchronize ]
   push:
     branches: [ main ]
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-
+      
       - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-
+      
       - name: Install root dependencies
         run: yarn install
-
+      
+      - name: Debug ffprobe
+        run: |
+          echo "System ffprobe:"
+          which ffprobe
+          ffprobe -version
+          echo "Node ffprobe path:"
+          node -e "console.log(require('@ffprobe-installer/ffprobe').path)"
+          echo "Node ffprobe version:"
+          node -e "console.log(require('@ffprobe-installer/ffprobe').version)"
+          echo "Node ffprobe permissions:"
+          ls -l $(node -e "console.log(require('@ffprobe-installer/ffprobe').path)")
+          echo "Testing Node ffprobe execution:"
+          $(node -e "console.log(require('@ffprobe-installer/ffprobe').path)") -version
+      
       - name: Build
         run: yarn build
-
+      
       - name: Install dev dependencies
         run: |
           cd dev
           yarn install
-
+      
       - name: Set up environment variables
         run: |
           cd dev
           echo "DATABASE_URI=mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0" >> .env
           echo "PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000" >> .env
           echo "PAYLOAD_SECRET=hellohereisasecretforyou" >> .env
-
+      
       - name: Run tests
         run: |
           yarn test
