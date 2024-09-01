@@ -1,6 +1,6 @@
 {
   "name": "plugin-adaptive-bitrate-videos",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "homepage:": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos",
   "repository": "git@github.com:cgilly2fast/plugin-adaptive-bitrate-videos.git",
   "description": "Payload plugin for automatic adaptive bitrate process of videos.",
@@ -25,11 +25,11 @@
     "clean": "rimraf dist && rimraf dev/yarn.lock",
     "prepublishOnly": "yarn clean && yarn build && cd dev && yarn test"
   },
-    "author": "Colby Gilbert",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos/issues"
-    },
+  "author": "Colby Gilbert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos/issues"
+  },
   "peerDependencies": {
     "payload": "^2.0.0"
   },
@@ -55,6 +55,8 @@
     "webpack": "^5.90.3"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "fluent-ffmpeg": "^2.1.3"
   }
 }

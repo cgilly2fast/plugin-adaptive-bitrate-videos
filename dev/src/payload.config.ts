@@ -39,75 +39,75 @@ import { OverrideSegments } from './collections/OverrideSegments'
 // })
 
 export default buildConfig({
-    admin: {
-        user: Users.slug,
-        bundler: webpackBundler(),
-        webpack: config => {
-            const newConfig = {
-                ...config,
-                resolve: {
-                    ...config.resolve,
-                    alias: {
-                        ...(config?.resolve?.alias || {}),
-                        react: path.join(__dirname, '../node_modules/react'),
-                        'react-dom': path.join(__dirname, '../node_modules/react-dom'),
-                        payload: path.join(__dirname, '../node_modules/payload'),
-                    },
-                },
-            }
-            return newConfig
+  admin: {
+    user: Users.slug,
+    bundler: webpackBundler(),
+    webpack: config => {
+      const newConfig = {
+        ...config,
+        resolve: {
+          ...config.resolve,
+          alias: {
+            ...(config?.resolve?.alias || {}),
+            react: path.join(__dirname, '../node_modules/react'),
+            'react-dom': path.join(__dirname, '../node_modules/react-dom'),
+            payload: path.join(__dirname, '../node_modules/payload'),
+          },
         },
+      }
+      return newConfig
     },
-    cors: '*',
-    editor: slateEditor({}),
-    collections: [Users, Media, Videos],
-    serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
-    typescript: {
-        outputFile: path.resolve(__dirname, 'payload-types.ts'),
-    },
-    graphQL: {
-        schemaOutputFile: path.resolve(__dirname, 'generated-schema.graphql'),
-    },
-    plugins: [
-        abrVideos({
-            enabled: true,
-            collections: {
-                media: {
-                    keepOriginal: false,
-                },
-                videos: {
-                    keepOriginal: true,
-                    resolutions: [
-                        { size: 144, bitrate: 150 },
-                        { size: 240, bitrate: 250 },
-                        { size: 300, bitrate: 500 },
-                    ],
-                    segmentDuration: 1,
-                },
-            },
-            segmentsOverrides: OverrideSegments,
-        }),
-        // cloudStorage({
-        //     collections: {
-        //         media: {
-        //             adapter: adapter,
-        //             prefix: 'test-media',
-        //             disableLocalStorage: true,
-        //         },
-        //         'override-segments': {
-        //             adapter: adapter,
-        //             prefix: 'segments',
-        //             disableLocalStorage: true,
-        //         },
-        //     },
-        // }),
-    ],
-    db: mongooseAdapter({
-        url: process.env.DATABASE_URI!,
+  },
+  cors: '*',
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
+  editor: slateEditor({}),
+  collections: [Users, Media, Videos],
+  typescript: {
+    outputFile: path.resolve(__dirname, 'payload-types.ts'),
+  },
+  graphQL: {
+    schemaOutputFile: path.resolve(__dirname, 'generated-schema.graphql'),
+  },
+  plugins: [
+    abrVideos({
+      enabled: true,
+      collections: {
+        media: {
+          keepOriginal: false,
+        },
+        videos: {
+          keepOriginal: true,
+          resolutions: [
+            { size: 144, bitrate: 150 },
+            { size: 240, bitrate: 250 },
+            { size: 300, bitrate: 500 },
+          ],
+          segmentDuration: 1,
+        },
+      },
+      segmentsOverrides: OverrideSegments,
     }),
-    upload: {
-        limits: {
-            fileSize: 50000000, // 5MB, written in bytes
-        },
+    // cloudStorage({
+    //     collections: {
+    //         media: {
+    //             adapter: adapter,
+    //             prefix: 'test-media',
+    //             disableLocalStorage: true,
+    //         },
+    //         'override-segments': {
+    //             adapter: adapter,
+    //             prefix: 'segments',
+    //             disableLocalStorage: true,
+    //         },
+    //     },
+    // }),
+  ],
+  db: mongooseAdapter({
+    url: process.env.DATABASE_URI!,
+  }),
+  upload: {
+    limits: {
+      fileSize: 50000000, // 500MB, written in bytes
     },
+  },
 })
