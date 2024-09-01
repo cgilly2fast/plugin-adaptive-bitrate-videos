@@ -21,11 +21,6 @@ jobs:
       - name: Install root dependencies
         run: yarn install
 
-      - name: Install FFmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
       - name: Build
         run: yarn build
 
@@ -43,5 +38,4 @@ jobs:
 
       - name: Run tests
         run: |
-          cd dev
           yarn test
