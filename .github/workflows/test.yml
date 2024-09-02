@@ -14,15 +14,25 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      
+
       - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-      
+
+      - name: Debug environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Yarn version: $(yarn -v)"
+          echo "PATH: $PATH"
+          echo "PWD: $PWD"
+          ls -R node_modules/@ffprobe-installer
+          ls -R node_modules/@ffmpeg-installer
+
       - name: Install root dependencies
         run: yarn install
-      
+
       - name: Debug ffprobe
         run: |
           echo "System ffprobe:"
@@ -36,22 +46,22 @@ jobs:
           ls -l $(node -e "console.log(require('@ffprobe-installer/ffprobe').path)")
           echo "Testing Node ffprobe execution:"
           $(node -e "console.log(require('@ffprobe-installer/ffprobe').path)") -version
-      
+
       - name: Build
         run: yarn build
-      
+
       - name: Install dev dependencies
         run: |
           cd dev
           yarn install
-      
+
       - name: Set up environment variables
         run: |
           cd dev
           echo "DATABASE_URI=mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0" >> .env
           echo "PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000" >> .env
           echo "PAYLOAD_SECRET=hellohereisasecretforyou" >> .env
-      
+
       - name: Run tests
         run: |
           yarn test
