@@ -1,6 +1,10 @@
 # Payload Adaptive Bitrate Videos Plugin
 This plugin extends Payload CMS to provide Adaptive Bitrate (ABR) streaming capabilities for uploaded video files. It automatically processes video uploads, creates segment playlists for multiple resolution versions, generates HLS manifests, and updates the collection with the master manifest file location.
 
+## Introduction Video
+
+[![Watch the video](https://www.colbygilbert.com/api/media/file/abr-videos-preview.png)](https://youtu.be/OlUxOIvCBxc)
+
 ### Features
 
 - Automatic video processing on upload
