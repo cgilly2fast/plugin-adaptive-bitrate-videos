@@ -4,7 +4,6 @@ import https from 'https'
 import fs from 'fs'
 import { promises as fsPromises } from 'fs'
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg'
-//import ffprobeInstaller from '@ffprobe-installer/ffprobe'
 import path from 'path'
 import {
     PlaylistInfo,
@@ -29,9 +28,7 @@ export async function sliceVideo(
 ): Promise<VideoInfo> {
     return new Promise((resolve, reject) => {
         console.log('FFmpeg path:', ffmpegInstaller.path)
-        //       console.log('FFprobe path:', ffprobeInstaller.path)
         ffmpeg.setFfmpegPath(ffmpegInstaller.path)
-        //       ffmpeg.setFfprobePath(ffprobeInstaller.path)
 
         ffmpeg.ffprobe(inputPath, async (err, metadata) => {
             if (err) return reject(err)
