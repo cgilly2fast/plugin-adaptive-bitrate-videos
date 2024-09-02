@@ -20,15 +20,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Debug environment
-        run: |
-          echo "Node version: $(node -v)"
-          echo "NPM version: $(npm -v)"
-          echo "Yarn version: $(yarn -v)"
-          echo "PATH: $PATH"
-          echo "PWD: $PWD"
-          ls -R node_modules/@ffprobe-installer
-          ls -R node_modules/@ffmpeg-installer
 
       - name: Install root dependencies
         run: yarn install
@@ -54,6 +45,16 @@ jobs:
         run: |
           cd dev
           yarn install
+
+      - name: Debug environment
+        run: |
+          echo "Node version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Yarn version: $(yarn -v)"
+          echo "PATH: $PATH"
+          echo "PWD: $PWD"
+          ls -R node_modules/@ffprobe-installer
+          ls -R node_modules/@ffmpeg-installer
 
       - name: Set up environment variables
         run: |
