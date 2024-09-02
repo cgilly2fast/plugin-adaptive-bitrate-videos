@@ -278,7 +278,7 @@ To run the this plugin, you will need to run your Payload server on a machine th
 
 This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
 
-See Payload Documentation on setting[upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
+See Payload Documentation on setting [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
 
 ## Questions
 
