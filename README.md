@@ -273,12 +273,14 @@ const SimpleHlsPlayer = () => {
 export default SimpleHlsPlayer;
 ```
 
-## Memory Considerations
-To run the this plugin, you will need to run your Payload server on a machine that can comfortably storage 2x the max video upload size.
+## Memory & Runtime Considerations
+To run the this plugin, you will need to run your Payload server on a machine that can comfortably store 2x the max video upload size.
 
 This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
 
 See Payload Documentation on setting [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
+
+Also when deployed to production, videos will process slower than processing locally. If the `processVideo` function is being run in a cloud function environment ensure cloud function timeouts give enough time for videos to process.
 
 ## Questions
 
