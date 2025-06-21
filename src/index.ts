@@ -1,2 +1,2 @@
-export { abrVideos } from './plugin'
-export type { PluginOptions } from './types'
+export { abrVideos } from './plugin.js'
+export type { ABROptions } from './types.js'

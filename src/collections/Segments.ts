@@ -1,8 +1,7 @@
-import type { CollectionConfig } from 'payload/types'
+import type { CollectionConfig } from 'payload'
+import { ABROptions } from '../types.js'
 
-import type { PluginOptions } from '../types'
-
-export const generateSegmentsCollection = (pluginOptions: PluginOptions): CollectionConfig => {
+export const generateSegmentsCollection = (pluginOptions: ABROptions): CollectionConfig => {
   const newConfig: CollectionConfig = {
     ...(pluginOptions?.segmentsOverrides || {}),
     slug: pluginOptions?.segmentsOverrides?.slug || 'segments',
@@ -12,6 +11,7 @@ export const generateSegmentsCollection = (pluginOptions: PluginOptions): Collec
       ...(pluginOptions?.segmentsOverrides?.access || {}),
     },
     admin: {
+      // hidden: true,
       ...(pluginOptions?.segmentsOverrides?.admin || {}),
     },
     fields: [...(pluginOptions?.segmentsOverrides?.fields || [])],

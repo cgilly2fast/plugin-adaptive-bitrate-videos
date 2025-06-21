@@ -1,5 +1,8 @@
 # Payload Adaptive Bitrate Videos Plugin
+
 This plugin extends Payload CMS to provide Adaptive Bitrate (ABR) streaming capabilities for uploaded video files. It automatically processes video uploads, creates segment playlists for multiple resolution versions, generates HLS manifests, and updates the collection with the master manifest file location.
+
+**Updated for Payload 3.0**
 
 ## Introduction Video
 
@@ -11,6 +14,8 @@ This plugin extends Payload CMS to provide Adaptive Bitrate (ABR) streaming capa
 - Multiple resolution transcoding (144p to 4K, define custom sizes/bitrates)
 - HLS playlist and master manifest generation
 - Flexible storage integration (Local, AWS S3, Google Cloud Storage, Azure Blob Storage)
+- Uses Payload job queue with configurable max running jobs - queue automatically starts processing when new jobs are added (pull worker queue pattern)
+- Offload video processing to external compute resources (AWS Fargate, Docker containers, dedicated servers) via customizable task configuration
 
 ## Installation
 
@@ -30,12 +35,12 @@ Now install this plugin within your Payload as follows:
 //payload.config.ts
 import { buildConfig } from 'payload/config'
 import path from 'path'
-import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
+import { abrVideos } from 'plugin-adaptive-bitrate-videos`'
 
 export default buildConfig({
   serverUrl: 'https://example.com' // Must be set to use pluggin
   plugins: [
-    adaptiveBirateVideos({
+    abrVideos({
       collections: {
         'my-collection-slug': {keepOrginal: true}
       }
@@ -48,14 +53,15 @@ export default buildConfig({
 See [Payload config options](https://payloadcms.com/docs/configuration/overview#options) for documentation on setting serverUrl in Payload config.
 
 ### Cloud Storage Plugin
-This plugin can be used with the Payload Cloud Storage Plugin to store you segments and manifest files.  `cloudStorage` is [CollectionOptions](https://github.com/payloadcms/plugin-cloud-storage/blob/c4a492a62abc2f21b4cd6a7c97778acd8e831212/src/types.ts#L48) object from [Payload Cloud Plugin Collection specific options.](https://github.com/payloadcms/payload/tree/main/packages/plugin-cloud-storage#plugin-options)
+
+This plugin can be used with the Payload Cloud Storage Plugin to store you segments and manifest files. `cloudStorage` is [CollectionOptions](https://github.com/payloadcms/plugin-cloud-storage/blob/c4a492a62abc2f21b4cd6a7c97778acd8e831212/src/types.ts#L48) object from [Payload Cloud Plugin Collection specific options.](https://github.com/payloadcms/payload/tree/main/packages/plugin-cloud-storage#plugin-options)
 
 ```ts
 //payload.config.ts
 import { buildConfig } from 'payload/config'
 import path from 'path'
-import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos'
-import { gcsAdapter } from '@payloadcms/plugin-cloud-storage/gcs'
+import { abrVideos } from 'plugin-adaptive-bitrate-videos'
+import { gcsStorage } from '@payloadcms/storage-gcs'
 
 const adapter = gcsAdapter({
   options: {
@@ -71,13 +77,20 @@ const adapter = gcsAdapter({
 export default buildConfig({
   serverUrl: 'https://example.com' // Must be set to use plugin
   plugins: [
-    adaptiveBirateVideos({
+    abrVideos({
       collections: {
         // The collection users upload source videos to
         'my-collection-slug': {keepOriginal: true}
       }
     }),
-    cloudStorage({ // Cloud storage plugin must come after plugin
+    gcsAdapter({ //IMPORTANT: Cloud storage plugin must come after plugin
+      options: {
+        // you can choose any method for authentication, and authorization which is being provided by `@google-cloud/storage`
+        keyFilename: './gcs-credentials.json',
+        //OR
+        credentials: JSON.parse(process.env.GCS_CREDENTIALS || '{}'), // this env variable will have stringify version of your credentials.json file
+      },
+      bucket: process.env.GCS_BUCKET,
       collections: {
         // The collection users upload source videos to
         'my-collection-slug': {
@@ -89,13 +102,14 @@ export default buildConfig({
           adapter: adapter,
         },
       },
-    }),
+    })
   ]
   // The rest of your config goes here
 })
 ```
 
 ### Custom Sizes And Bitrates
+
 If not resolutions array is provide, the plugin will use the default resolutions and bit rates. `size` specifies the pixel size of the short side of the video so the aspect ratio of any input video is maintained.
 
 For Example: if you input a 4k 16:9 video (The standard landscape video aspect ratio), the plugin will change the video's height to and allow the width to proportionally change.
@@ -110,12 +124,12 @@ _Note: The plugin will only output segments for resolutions that are less than o
 //payload.config.ts
 import { buildConfig } from 'payload/config'
 import path from 'path'
-import { adaptiveBirateVideos } from 'plugin-adaptive-bitrate-videos`'
+import { abrVideos } from 'plugin-adaptive-bitrate-videos`'
 
 export default buildConfig({
   serverUrl: 'https://example.com' // Must be set to use pluggin
   plugins: [
-    adaptiveBirateVideos({
+    abrVideos({
       collections: {
         'my-collection-slug':{
           keepOriginal: true,
@@ -140,45 +154,49 @@ The proper way to conditionally enable/disable this plugin is to use the `enable
 
 ```ts
 //payload.config.ts
-adaptiveBirateVideos({
+abrVideos({
   enabled: process.env.MY_CONDITION === 'true',
   collections: {
     'media': {keepOrginal: true}
   }
 }),
 ```
+
 If the code is included _in any way in your config_ but conditionally disabled in another fashion, you may run into issues such as `Webpack Build Error: Can't Resolve 'fs' and 'stream'` or similar because the plugin must be run at all times in order to properly extend the webpack config.
 
 ### Segments Collection Override
+
 Override anything on the `segments` collection by sending a [Payload Collection Config](https://payloadcms.com/docs/configuration/collections) to the `segmentsOverrides` property.
 
 ```ts
 // payload.config.ts
-adaptiveBirateVideos({
+abrVideos({
   // ...
   segmentOverrides: {
-    slug: "contact-forms",
+    slug: 'contact-forms',
     access: {
       read: () => true,
       update: () => false,
     },
     fields: [
-    {
-      name: "custom-field",
-      type: "text"
-    }]
-  }
+      {
+        name: 'custom-field',
+        type: 'text',
+      },
+    ],
+  },
 })
 ```
 
 ### Custom Segment Length
+
 Optionally set the length of the segments the source video will be divided into. Default length is 2 seconds. The property takes in an number representing seconds.
 
 ```ts
 // payload.config.ts
-adaptiveBirateVideos({
+abrVideos({
   // ...
-  segmentLength: 5 //seconds. Default is 2 seconds.
+  segmentLength: 5, //seconds. Default is 2 seconds.
 })
 ```
 
@@ -186,68 +204,72 @@ adaptiveBirateVideos({
 
 This plugin is configurable to work across many different Payload collections. A `*` denotes that the property is required.
 
-| Option              | Type                                                                             | Description                                                                                                                       |
-| ------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `collections`*      | Records<string,[CollectionOptions]()>                                            | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options. |
-| `enabled`           | `boolean`                                                                        | Conditionally enable/disable plugin. Default: true.<br>                                                                           |
-| `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections) | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault      |
+| Option              | Type                                                                                       | Description                                                                                                                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `collections`\*     | Records<`string`,[CollectionOptions]()>                                                    | Object with keys set to the slug of collections you want to enable the plugin for, and values set to collection-specific options.                                                                        |
+| `enabled`           | `boolean`                                                                                  | Conditionally enable/disable plugin. Default: true.<br>                                                                                                                                                  |
+| `segmentsOverrides` | [PayloadCollectionConfig](https://payloadcms.com/docs/configuration/collections)           | Object that overrides the default collection used to store reference to the output segments. Default: SegmentOverrideDefault                                                                             |
+| `queueName`         | `string`                                                                                   | The name of queue used in payload-jobs Default: 'process-abr-videos-queue'                                                                                                                               |
+| `maxJobs`           | `number`                                                                                   | Max number of video processing jobs to allow to be run at once. Default: 1                                                                                                                               |
+| `taskOverride`      | `TaskConfig \| ((options: TaskConfigurationOptions) => TaskConfig \| Promise<TaskConfig>)` | Override the default video processing task to run on different compute resources. See [taskOverride documentation](https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos/blob/main/src/types.ts) |
 
 **Collection-specific options:**
 
-| Option          | Type                | Description                                                                                    |
-| --------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
-| `keepOriginal`* | `boolean`           | Conditionally set to keep the original source file after processing.                           |
-| `resolutions`   | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
-| `segmentLength` | `number`            | Set the output segment length in seconds for each resolution output. Default: 2                |
+| Option           | Type                | Description                                                                                    |
+| ---------------- | ------------------- | ---------------------------------------------------------------------------------------------- |
+| `keepOriginal`\* | `boolean`           | Conditionally set to keep the original source file after processing.                           |
+| `resolutions`    | `Array<Resolution>` | Set custom resolutions for the plugin to output segment videos to. Default: ResolutionsDefault |
+| `segmentLength`  | `number`            | Set the output segment length in seconds for each resolution output. Default: 2                |
 
 #### SegmentOverrideDefault
 
 ```ts
 const SegmentOverrideDefault = {
-  slug: "segments",
+  slug: 'segments',
   labels: { singular: 'ABR Segment', plural: 'ABR Segments' },
   access: {
     read: () => true,
     update: () => false,
   },
   upload: true,
-  fields: []
+  fields: [],
 }
 ```
 
 #### ResolutionsDefault
+
 ```ts
 const DefaultResolutions = [
-    { size: 144, bitrate: 150 },
-    { size: 240, bitrate: 250 },
-    { size: 360, bitrate: 500 },
-    { size: 480, bitrate: 1000 },
-    { size: 720, bitrate: 1500 },
-    { size: 1080, bitrate: 4000 },
-    { size: 1440, bitrate: 6000 },
-    { size: 2160, bitrate: 10000 },
-
+  { size: 144, bitrate: 150 },
+  { size: 240, bitrate: 250 },
+  { size: 360, bitrate: 500 },
+  { size: 480, bitrate: 1000 },
+  { size: 720, bitrate: 1500 },
+  { size: 1080, bitrate: 4000 },
+  { size: 1440, bitrate: 6000 },
+  { size: 2160, bitrate: 10000 },
 ]
 ```
 
 ## Example Front-end Usage
 
 Any video player that can play .m3u8 files can be used. Here is a simple example using the `react-hls-video-player`. View docs for [react-hls-video-player here.]('https://github.com/cgilly2fast/react-hls')
+
 ```tsx
-import React, { useRef, useState } from 'react';
-import ReactHlsPlayer from 'react-hls-video-player';
+import React, { useRef, useState } from 'react'
+import ReactHlsPlayer from 'react-hls-video-player'
 
 const SimpleHlsPlayer = () => {
-  const playerRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const playerRef = useRef(null)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   const handlePlay = () => {
-    setIsPlaying(true);
-  };
+    setIsPlaying(true)
+  }
 
   const handlePause = () => {
-    setIsPlaying(false);
-  };
+    setIsPlaying(false)
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -267,13 +289,14 @@ const SimpleHlsPlayer = () => {
         <p>Player status: {isPlaying ? 'Playing' : 'Paused'}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SimpleHlsPlayer;
+export default SimpleHlsPlayer
 ```
 
 ## Memory & Runtime Considerations
+
 To run the this plugin, you will need to run your Payload server on a machine that can comfortably store 2x the max video upload size.
 
 This is required because the source video needs to be temporally stored and the output segments need to be temporally stored before being saved in your final destination.
@@ -281,6 +304,65 @@ This is required because the source video needs to be temporally stored and the 
 See Payload Documentation on setting [upload limits here](https://payloadcms.com/docs/upload/overview#payload-wide-upload-options).
 
 Also when deployed to production, videos will process slower than processing locally. If the `processVideo` function is being run in a cloud function environment ensure cloud function timeouts give enough time for videos to process.
+
+### Custom Video Processing with taskOverride
+
+For CPU-intensive video processing, you may want to offload the work to dedicated compute resources. The `taskOverride` option allows you to customize or replace the default video processing task.
+
+**Default Task Input Schema:**
+
+- `baseURL` (text): Base URL for file access
+- `inputPath` (text): Path to input video file
+- `keepOriginal` (checkbox): Whether to keep original file
+- `originalID` (text): ID of original video record
+- `originalData` (json): Original video metadata
+- `resolutions` (array): Target resolutions with size and bitrate
+- `segmentDuration` (number): Segment length in seconds
+- `inputCollectionSlug` (text): Source collection slug
+- `outputCollectionSlug` (text): Target collection slug
+
+**Example: Custom Processing Task**
+
+```ts
+// payload.config.ts
+abrVideos({
+  collections: {
+    videos: { keepOriginal: true },
+  },
+  taskOverride: {
+    slug: 'custom-video-processing',
+    handler: async ({ input, req }) => {
+      // Custom processing logic
+      const result = await processVideoHandler(req.payload, input)
+      return { output: result }
+    },
+    retries: 2,
+  },
+})
+```
+
+**Example: External Service Integration**
+
+```ts
+// payload.config.ts
+abrVideos({
+  collections: {
+    videos: { keepOriginal: true },
+  },
+  taskOverride: (config) => ({
+    slug: 'external-video-processing',
+    handler: async ({ input, req }) => {
+      // Delegate to external processing service
+      const response = await fetch(`${process.env.VIDEO_PROCESSING_ENDPOINT}/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      return await response.json()
+    },
+  }),
+})
+```
 
 ## Questions
 

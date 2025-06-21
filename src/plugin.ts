@@ -1,10 +1,10 @@
-import type { Plugin } from 'payload/config'
+import { type Config } from 'payload'
 
-import type { PluginOptions } from './types'
-import { generateSegmentsCollection } from './collections/Segments'
-import { getAfterOperationHook } from './hooks/afterOperation'
-import processVideo from './endpoints/ProcessVideo'
-import { extendWebpackConfig } from './webpack'
+import type { ABROptions } from './types.js'
+import { generateSegmentsCollection } from './collections/Segments.js'
+import { getAfterOperationHook } from './hooks/afterOperation.js'
+import { getProcessVideoTask } from './task/processVideo.js'
+import { getRunNextProcessVideoJob } from './endpoints/runNextProcessVideoJob.js'
 
 const DefaultResolution = [
   { size: 144, bitrate: 150 },
@@ -18,23 +18,33 @@ const DefaultResolution = [
 ]
 
 export const abrVideos =
-  (pluginOptions: PluginOptions): Plugin =>
-  incomingConfig => {
-    let config = { ...incomingConfig }
-    const { collections: allCollectionOptions, enabled } = pluginOptions
+  (pluginOptions: ABROptions) =>
+  async (config: Config): Promise<Config> => {
+    let {
+      collections: allCollectionOptions,
+      enabled,
+      queueName = 'process-abr-videos-queue',
+      maxJobs = 1,
+      taskOverride = getProcessVideoTask,
+    } = pluginOptions
+    const { serverURL } = config
 
-    // If the plugin is disabled, return the config without modifying it
-    // The order of this check is important, we still want any webpack extensions to be applied even if the plugin is disabled
     if (enabled === false) {
       return config
     }
-    const webpack = extendWebpackConfig(incomingConfig)
-    config.admin = {
-      ...(config.admin || {}),
-      webpack,
-    }
+    if (!serverURL) throw Error('ABR Video Plugin: Setting `serverURL` is required')
+
+    config.jobs = { ...config.jobs, tasks: config.jobs?.tasks || [] }
+
+    // prettier-ignore
+    const taskConfig = typeof taskOverride === 'function' 
+      ? await taskOverride({ queueName, maxJobs, serverURL })
+      : taskOverride
+
+    config.jobs.tasks!.push(taskConfig)
+
     config.collections = [
-      ...(config.collections || []).map(existingCollection => {
+      ...(config.collections || []).map((existingCollection) => {
         const options = allCollectionOptions[existingCollection.slug]
 
         if (!options) return existingCollection
@@ -51,7 +61,10 @@ export const abrVideos =
                 keepOriginal: keepOriginal ?? false,
                 resolutions: resolutions ?? DefaultResolution,
                 segmentDuration: segmentDuration ?? 2,
-                outputCollectionSlug: pluginOptions?.segmentsOverrides?.slug || 'segments',
+                outputCollectionSlug: pluginOptions.segmentsOverrides?.slug || 'segments',
+                maxJobs: maxJobs,
+                queueName: queueName,
+                taskSlug: taskConfig.slug,
               }),
             ],
           },
@@ -59,15 +72,14 @@ export const abrVideos =
       }),
       generateSegmentsCollection(pluginOptions),
     ]
+
     config.endpoints = [
       ...(config.endpoints || []),
       {
-        path: '/process-video',
-        method: 'post',
-        handler: processVideo,
+        path: '/run-next-process-video',
+        method: 'get',
+        handler: getRunNextProcessVideoJob(queueName, maxJobs),
       },
-      // Add additional endpoints here
     ]
-
-    return config
+    return config as Config
   }

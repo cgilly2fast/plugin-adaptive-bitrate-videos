@@ -1,36 +1,38 @@
-import { Server } from 'http'
-import mongoose from 'mongoose'
-import payload from 'payload'
-import { start } from './src/server'
+import type { Payload } from 'payload'
+import { getPayload } from 'payload'
 import fs from 'fs'
 import { promises as fsPromises } from 'fs'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 
-describe('Plugin tests', () => {
-  let server: Server
+describe.sequential('Plugin tests', () => {
+  let payload: Payload
   let id: number | string
 
   beforeAll(async () => {
-    if (!server) {
-      console.log('Before all: Starting server')
-      server = await start()
-      await new Promise(resolve => setTimeout(resolve, 70000))
-      console.log('Before all: Server started')
-    }
+    console.log('Before all: Initializing Payload')
+    const { default: config } = await import('./payload.config.js')
+    payload = await getPayload({ config })
+    console.log('Before all: Payload initialized')
   }, 90000)
 
   afterAll(async () => {
     console.log('After all: Cleaning up')
-    await mongoose.connection.dropDatabase()
-    await mongoose.connection.close()
-    server.close()
-    await fsPromises.rmdir('./src/media')
-    await fsPromises.rm('./src/videos', { recursive: true })
-    await fsPromises.rmdir('./src/override-segments')
+    if (payload?.db?.destroy) {
+      await payload.db.destroy()
+    }
+    // Clean up test files
+    try {
+      await fsPromises.rm('../media', { recursive: true, force: true })
+      await fsPromises.rm('../videos', { recursive: true, force: true })
+      await fsPromises.rm('../override-segments', { recursive: true, force: true })
+    } catch (error) {
+      console.log('Cleanup error (expected):', error)
+    }
     console.log('After all: Cleanup complete')
   })
 
   it('input media collection uploads videos', async () => {
-    const testVideoBuffer = await fsPromises.readFile('./src/mocks/testVideo.mp4')
+    const testVideoBuffer = await fsPromises.readFile('./dev/mocks/testVideo.mp4')
 
     const createdMedia = await payload.create({
       collection: 'media',
@@ -42,14 +44,14 @@ describe('Plugin tests', () => {
       },
       data: { alt: 'Ligma Test' },
     })
-    await new Promise(resolve => setTimeout(resolve, 50000))
+    await new Promise((resolve) => setTimeout(resolve, 60000))
     expect(createdMedia).toBeTruthy()
     expect(createdMedia.id).toBeDefined()
     expect(createdMedia.filename).toBe('testVideo.mp4')
     expect(createdMedia.mimeType).toBe('video/mp4')
     expect(createdMedia.filesize).toBe(testVideoBuffer.byteLength)
     expect(createdMedia.alt).toBe('Ligma Test')
-  }, 70000)
+  }, 80000)
 
   it('standard video outputs are present', () => {
     const resolutions = [144, 240, 360, 480, 720]
@@ -57,7 +59,7 @@ describe('Plugin tests', () => {
     for (let i = 0; i < resolutions.length; i++) {
       for (let j = 0; j < exceptedNumSegments; j++) {
         expect(
-          fs.existsSync(`src/override-segments/testVideo-${resolutions[i]}p-segment${j}.ts`),
+          fs.existsSync(`../override-segments/testVideo-${resolutions[i]}p-segment${j}.ts`),
         ).toBe(true)
       }
     }
@@ -66,9 +68,9 @@ describe('Plugin tests', () => {
   it('default resolution manifest playlists are present', () => {
     const resolutions = [144, 240, 360, 480, 720]
     for (let i = 0; i < resolutions.length; i++) {
-      expect(
-        fs.existsSync(`./src/override-segments/testVideo-${resolutions[i]}p-playlist.m3u8`),
-      ).toBe(true)
+      expect(fs.existsSync(`../override-segments/testVideo-${resolutions[i]}p-playlist.m3u8`)).toBe(
+        true,
+      )
     }
   })
 
@@ -101,7 +103,7 @@ describe('Plugin tests', () => {
   })
 
   it('video input collection uploads videos', async () => {
-    const testVideoBuffer = await fsPromises.readFile('./src/mocks/testVideo2.mp4')
+    const testVideoBuffer = await fsPromises.readFile('./dev/mocks/testVideo2.mp4')
 
     const createdMedia = await payload.create({
       collection: 'videos',
@@ -113,7 +115,7 @@ describe('Plugin tests', () => {
       },
       data: { alt: 'Ligma Test' },
     })
-    await new Promise(resolve => setTimeout(resolve, 40000))
+    await new Promise((resolve) => setTimeout(resolve, 40000))
     expect(createdMedia).toBeTruthy()
     expect(createdMedia.id).toBeDefined()
     expect(createdMedia.filename).toBe('testVideo2.mp4')
@@ -128,7 +130,7 @@ describe('Plugin tests', () => {
     for (let i = 0; i < resolutions.length; i++) {
       for (let j = 0; j < exceptedNumSegments; j++) {
         expect(
-          fs.existsSync(`./src/override-segments/testVideo2-${resolutions[i]}p-segment${j}.ts`),
+          fs.existsSync(`../override-segments/testVideo2-${resolutions[i]}p-segment${j}.ts`),
         ).toBe(true)
       }
     }
@@ -138,7 +140,7 @@ describe('Plugin tests', () => {
     const resolutions = [144, 240, 300]
     for (let i = 0; i < resolutions.length; i++) {
       expect(
-        fs.existsSync(`./src/override-segments/testVideo2-${resolutions[i]}p-playlist.m3u8`),
+        fs.existsSync(`../override-segments/testVideo2-${resolutions[i]}p-playlist.m3u8`),
       ).toBe(true)
     }
   })
@@ -174,25 +176,26 @@ describe('Plugin tests', () => {
   })
 
   it('deletes output segments when master manifest is deleted by ID', async () => {
+    console.log('id test', id)
     await payload.delete({
       collection: 'media',
       id,
     })
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     const resolutions = [144, 240, 360, 480, 720]
     const exceptedNumSegments = 13
     for (let i = 0; i < resolutions.length; i++) {
       for (let j = 0; j < exceptedNumSegments; j++) {
         expect(
-          fs.existsSync(`src/override-segments/testVideo-${resolutions[i]}p-segment${j}.ts`),
+          fs.existsSync(`../override-segments/testVideo-${resolutions[i]}p-segment${j}.ts`),
         ).toBe(false)
       }
     }
     for (let i = 0; i < resolutions.length; i++) {
-      expect(
-        fs.existsSync(`./src/override-segments/testVideo-${resolutions[i]}p-playlist.m3u8`),
-      ).toBe(false)
+      expect(fs.existsSync(`../override-segments/testVideo-${resolutions[i]}p-playlist.m3u8`)).toBe(
+        false,
+      )
     }
   })
 
@@ -205,20 +208,20 @@ describe('Plugin tests', () => {
         },
       },
     })
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     const resolutions = [144, 240, 300]
     const exceptedNumSegments = 12
     for (let i = 0; i < resolutions.length; i++) {
       for (let j = 0; j < exceptedNumSegments; j++) {
         expect(
-          fs.existsSync(`src/override-segments/testVideo2-${resolutions[i]}p-segment${j}.ts`),
+          fs.existsSync(`../override-segments/testVideo2-${resolutions[i]}p-segment${j}.ts`),
         ).toBe(false)
       }
     }
     for (let i = 0; i < resolutions.length; i++) {
       expect(
-        fs.existsSync(`./src/override-segments/testVideo2-${resolutions[i]}p-playlist.m3u8`),
+        fs.existsSync(`../override-segments/testVideo2-${resolutions[i]}p-playlist.m3u8`),
       ).toBe(false)
     }
   })

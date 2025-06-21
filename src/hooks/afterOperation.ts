@@ -1,5 +1,5 @@
-import { CollectionAfterOperationHook } from 'payload/types'
-import { GetAfterOperationHookParams } from '../types'
+import { CollectionAfterOperationHook } from 'payload'
+import { GetAfterOperationHookParams } from '../types.js'
 
 export const getAfterOperationHook =
   ({
@@ -7,33 +7,66 @@ export const getAfterOperationHook =
     resolutions,
     segmentDuration,
     outputCollectionSlug,
+    maxJobs,
+    queueName,
+    taskSlug,
   }: GetAfterOperationHookParams): CollectionAfterOperationHook =>
-  async ({ operation, result, req, collection }) => {
+  async ({ operation, result, req: { payload }, collection }) => {
+    console.log('after operation')
     if (operation === 'create') {
       const { id, filename, mimeType, url, createdAt, updatedAt, ...data } = result as any
       if (!mimeType.startsWith('video/')) {
         return result
       }
-
-      const baseURL = req.payload.config.serverURL.replace(/\/$/, '')
+      const baseURL = payload.config.serverURL.replace(/\/$/, '')
+      console.log('base url', baseURL)
+      // const docs = await payload.delete({
+      //   collection: 'payload-jobs',
+      //   where: {},
+      // })
+      // console.log('deleet done', docs)
+      // return result
       setTimeout(async () => {
-        fetch(`${baseURL}/api/process-video`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            baseURL,
-            inputPath: url,
-            keepOriginal,
-            originalID: id,
-            originalData: data,
-            resolutions,
-            segmentDuration,
-            inputCollectionSlug: collection.slug,
-            outputCollectionSlug,
+        const [{ totalDocs: totalRunningJobs }, job] = await Promise.all([
+          payload.count({
+            collection: 'payload-jobs',
+            where: {
+              queue: {
+                equals: queueName,
+              },
+              processing: {
+                equals: true,
+              },
+              hasError: {
+                equals: false,
+              },
+            },
           }),
-        })
+          payload.jobs.queue({
+            queue: queueName,
+            task: taskSlug,
+            input: {
+              baseURL,
+              inputPath: url,
+              keepOriginal,
+              originalID: id,
+              originalData: data,
+              resolutions,
+              segmentDuration,
+              inputCollectionSlug: collection.slug,
+              outputCollectionSlug,
+            },
+          }),
+        ])
+
+        console.log('total runnnign job', totalRunningJobs, job)
+
+        if (totalRunningJobs < maxJobs) {
+          payload.jobs.run({
+            queue: queueName,
+            limit: 1,
+          })
+        }
       }, 1000)
       return result
     }
@@ -45,7 +78,7 @@ export const getAfterOperationHook =
 
       const videoName = filename.split('.')[0]
 
-      req.payload.delete({
+      payload.delete({
         collection: outputCollectionSlug,
         where: {
           filename: {
@@ -66,7 +99,7 @@ export const getAfterOperationHook =
 
         const videoName = filename.split('.')[0]
 
-        req.payload.delete({
+        payload.delete({
           collection: outputCollectionSlug,
           where: {
             filename: {
