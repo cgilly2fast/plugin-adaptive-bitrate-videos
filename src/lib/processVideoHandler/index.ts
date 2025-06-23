@@ -64,6 +64,8 @@ const processVideoHandler = async (
       videoInfo.playlists,
       segmentDuration,
       uploadBufferToOutputCollection,
+      baseURL,
+      outputCollectionSlug
     )
     await createMasterManifest(
       videoName,

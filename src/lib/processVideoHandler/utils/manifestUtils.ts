@@ -38,6 +38,8 @@ export async function createPlaylistManifests(
     playlists: PlaylistInfo[],
     segmentDuration: number,
     uploadBuffer: UploadBufferFunc,
+    baseURL: string,
+    outputCollectionSlug: string,
 ) {
     for (const playlist of playlists) {
         const { segments, resolution } = playlist
@@ -50,7 +52,8 @@ export async function createPlaylistManifests(
         ]
 
         segments.forEach(segment => {
-            playlistContent.push(`#EXTINF:${segment.duration},`, segment.path)
+            playlistContent.push(`#EXTINF:${segment.duration},`, 
+                segment.path.replace(outputCollectionSlug,`/api/${outputCollectionSlug}/file`))
         })
 
         playlistContent.push('#EXT-X-ENDLIST')
