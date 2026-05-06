@@ -299,6 +299,49 @@ export default SimpleHlsPlayer
 
 This repository includes a Payload 3 development app in `dev/` for both manual testing and automated integration testing.
 
+### Prerequisites
+
+- [Docker](https://www.docker.com/) — required to run the local MongoDB instance
+- [pnpm](https://pnpm.io/)
+
+### Setup
+
+1. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+2. **Configure environment variables**
+
+   Copy the example env file and fill in any values you need:
+
+   ```bash
+   cp dev/.env.example dev/.env
+   ```
+
+   The default values in `.env.example` work out of the box with the Docker MongoDB setup below. The key variables are:
+
+   | Variable                    | Description                              | Default                                          |
+   | --------------------------- | ---------------------------------------- | ------------------------------------------------ |
+   | `DATABASE_URI`              | MongoDB connection string                | `mongodb://127.0.0.1:27017/payload-plugin-template` |
+   | `PAYLOAD_SECRET`            | Secret key for Payload CMS               | _(set your own)_                                 |
+   | `PAYLOAD_PUBLIC_SERVER_URL` | Public URL of the dev server             | `http://localhost:3000`                          |
+
+3. **Start MongoDB**
+
+   A `docker-compose.yml` is included at the root of the repo. Start MongoDB with:
+
+   ```bash
+   docker compose up -d
+   ```
+
+   This runs MongoDB 7 on `localhost:27017`. Data is persisted in a Docker volume between restarts. To stop it:
+
+   ```bash
+   docker compose down
+   ```
+
 ### Manual Testing
 
 Start the local Payload/Next app:
