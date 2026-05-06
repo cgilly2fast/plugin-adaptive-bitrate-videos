@@ -3,13 +3,17 @@ import type { FfprobeStream } from 'fluent-ffmpeg'
 export function calcDimensions(aspectRatio: number, orientation: string, resolution: number) {
     let width: number, height: number
 
-    if (orientation === 'y') {
+    if (orientation === 'x') {
         width = resolution
         height = Math.round(width / aspectRatio)
     } else {
         height = resolution
-        width = Math.round(height / aspectRatio)
+        width = Math.round(height * aspectRatio)
     }
+    
+    // Ensure even dimensions for H264
+    width = width % 2 === 0 ? width : width + 1
+    height = height % 2 === 0 ? height : height + 1
 
     return { width, height }
 }

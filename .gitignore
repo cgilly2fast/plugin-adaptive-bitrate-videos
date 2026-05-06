@@ -51,3 +51,4 @@ yarn-error.log*
 /playwright/.cache/
 
 .bin
+.env

@@ -16,6 +16,37 @@ import {
 } from '../../../types.js'
 import { calcDimensions, getFrameRate } from '../utils/ffmpegUtils.js'
 
+const downloadFile = async (url: string, destination: string): Promise<void> => {
+  await new Promise<void>((resolve, reject) => {
+    const file = fs.createWriteStream(destination)
+    const protocol = url.toLowerCase().startsWith('https:') ? https : http
+
+    const request = protocol.get(url, resp => {
+      if (!resp.statusCode || resp.statusCode < 200 || resp.statusCode >= 300) {
+        file.close()
+        fs.rmSync(destination, { force: true })
+        reject(new Error(`Failed to download ${url}: ${resp.statusCode}`))
+        return
+      }
+
+      resp.pipe(file)
+      resp.on('error', reject)
+    })
+
+    request.on('error', reject)
+    file.on('error', reject)
+    file.on('finish', () => {
+      file.close(error => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve()
+      })
+    })
+  })
+}
+
 export async function sliceVideo(
   videoName: string,
   inputPath: string,
@@ -68,23 +99,9 @@ export async function sliceVideo(
       let playlists: PlaylistInfo[] = []
       const resolutions = possibleResolutions.filter(resolution => resolution <= maxResolution)
 
-      const copiedVideoPath = path.join(tempOutputDir, `${path.basename(inputPath)}`)
-      await new Promise<void>((resolveCopy, rejectCopy) => {
-        const file = fs.createWriteStream(copiedVideoPath)
-        console.log(copiedVideoPath)
-        const protocol = inputPath.toLowerCase().startsWith('https:') ? https : http
-        protocol.get(inputPath, resp => {
-          resp.pipe(file)
+      const copiedVideoPath = path.join(tempOutputDir, path.basename(new URL(inputPath).pathname))
+      await downloadFile(inputPath, copiedVideoPath)
 
-          file.on('finish', () => {
-            file.close()
-            resolveCopy()
-          })
-          file.on('error', err => {
-            rejectCopy(err)
-          })
-        })
-      })
       for (const resolution of resolutions) {
         const outResolutionDir = path.join(tempOutputDir, `${resolution}`)
         if (!fs.existsSync(outResolutionDir)) {
@@ -103,7 +120,6 @@ export async function sliceVideo(
           sizeParam = `?x${resolution}`
         }
 
-        console.log(inputPath, resolution, orientation, sizeParam)
         await new Promise<void>((resolveSegment, rejectSegment) => {
           ffmpeg(copiedVideoPath)
             .size(sizeParam)
@@ -120,7 +136,7 @@ export async function sliceVideo(
               '-start_number 0',
               '-hls_init_time 0',
               `-hls_time ${segmentDuration}`,
-              `-hls_segment_filename ${segmentFilePattern}`, 
+              `-hls_segment_filename ${segmentFilePattern}`,
               '-f hls',
             ])
             .output(path.join(outResolutionDir, `playlist.m3u8`))
@@ -128,7 +144,7 @@ export async function sliceVideo(
               resolveSegment()
             })
             .on('error', function (err: any) {
-              console.error('ffmpeg error:', err.message);
+              console.error('ffmpeg error:', err.message)
               rejectSegment(err)
             })
             .run()
@@ -143,7 +159,10 @@ export async function sliceVideo(
 
           let computedDuration = segmentDuration
           if (i === numSegments - 1) {
-            computedDuration = duration % segmentDuration
+            computedDuration = duration - (numSegments - 1) * segmentDuration
+            if (computedDuration <= 0) {
+              computedDuration = segmentDuration
+            }
           }
           const buffer = await fsPromises.readFile(segmentPath)
 

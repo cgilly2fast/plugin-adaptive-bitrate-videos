@@ -42,7 +42,7 @@ if (!process.env.ROOT_DIR) {
 }
 
 const buildConfigWithMemoryDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test' && !process.env.DATABASE_URI) {
     const memoryDB = await MongoMemoryReplSet.create({
       replSet: {
         count: 3,
@@ -63,6 +63,7 @@ const buildConfigWithMemoryDB = async () => {
 
     db: mongooseAdapter({
       url: process.env.DATABASE_URI!,
+      transactionOptions: process.env.NODE_ENV === 'test' ? false : undefined,
     }),
     email: testEmailAdapter,
     plugins: [

@@ -19,13 +19,13 @@ export async function createMasterManifest(
         m3u8Content.push(
             `#EXT-X-STREAM-INF:BANDWIDTH=${
                 bitrate * 1000
-            },RESOLUTION=${width}x${height},CODECS="mp4a.40.5,avc1.4d401e",FRAME-RATE-${frameRate}.0,CLOSED-CAPTIONS=NONE`,
+            },RESOLUTION=${width}x${height},CODECS="mp4a.40.5,avc1.4d401e",FRAME-RATE=${frameRate}.0,CLOSED-CAPTIONS=NONE`,
             `${baseURL}/${outputCollectionSlug}/${videoName}-${resolution}p-playlist.m3u8`,
         )
     })
     const content = m3u8Content.join('\n')
     const buffer = Buffer.from(content, 'utf-8')
-    uploadBuffer(
+    await uploadBuffer(
         buffer,
         'application/x-mpegURL',
         videoName + '.m3u8',
@@ -57,7 +57,7 @@ export async function createPlaylistManifests(
         const content = playlistContent.join('\n')
         const buffer = Buffer.from(content, 'utf-8')
 
-        uploadBuffer(
+        await uploadBuffer(
             buffer,
             'application/x-mpegURL',
             `${videoName}-${resolution}p-playlist.m3u8`,

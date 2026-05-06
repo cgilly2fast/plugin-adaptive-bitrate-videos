@@ -69,15 +69,21 @@ export const getProcessVideoTask = async (options: TaskConfigurationOptions) => 
       },
     ],
     onFail: async () => {
-      fetch(`${options.serverURL}/api/run-next-process-video`, { method: 'GET' })
+      try {
+        await fetch(`${options.serverURL}/api/run-next-process-video`, { method: 'GET' })
+      } catch {
+        // The next-job trigger is best-effort; failed fetches should not crash the worker.
+      }
     },
     onSuccess: async () => {
-      fetch(`${options.serverURL}/api/run-next-process-video`, { method: 'GET' })
+      try {
+        await fetch(`${options.serverURL}/api/run-next-process-video`, { method: 'GET' })
+      } catch {
+        // The next-job trigger is best-effort; failed fetches should not crash the worker.
+      }
     },
     handler: async ({ input, req }) => {
       const { payload } = req
-
-      console.log('input', input)
       if (!input) {
         return {
           output: {},

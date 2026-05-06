@@ -1,7 +1,7 @@
 {
   "name": "plugin-adaptive-bitrate-videos",
-  "version": "3.0.0",
-  "homepage:": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos",
+  "version": "3.0.1",
+  "homepage": "https://github.com/cgilly2fast/plugin-adaptive-bitrate-videos",
   "repository": "git@github.com:cgilly2fast/plugin-adaptive-bitrate-videos.git",
   "description": "Payload plugin for automatic adaptive bitrate process of videos.",
   "files": [
@@ -10,13 +10,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "keywords": [
     "payload",
     "cms",
@@ -38,8 +39,7 @@
     "lint": "eslint",
     "lint:fix": "eslint ./src --fix",
     "prepublishOnly": "pnpm clean && pnpm build",
-    "test": "pnpm test:int && pnpm test:e2e",
-    "test:e2e": "playwright test",
+    "test": "vitest",
     "test:int": "vitest"
   },
   "author": "Colby Gilbert",
@@ -52,13 +52,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@payloadcms/db-mongodb": "3.43.0",
-    "@payloadcms/db-postgres": "3.43.0",
-    "@payloadcms/db-sqlite": "3.43.0",
+    "@payloadcms/db-mongodb": "3.84.1",
+    "@payloadcms/db-postgres": "3.84.1",
+    "@payloadcms/db-sqlite": "3.84.1",
     "@payloadcms/eslint-config": "3.9.0",
-    "@payloadcms/richtext-lexical": "3.43.0",
-    "@payloadcms/storage-gcs": "3.43.0",
-    "@payloadcms/next": "3.43.0",
+    "@payloadcms/next": "3.84.1",
+    "@payloadcms/richtext-lexical": "3.84.1",
+    "@payloadcms/storage-gcs": "3.84.1",
     "@playwright/test": "^1.52.0",
     "@swc-node/register": "1.10.9",
     "@swc/cli": "0.6.0",
@@ -74,9 +74,9 @@
     "eslint-config-next": "15.3.0",
     "graphql": "^16.8.1",
     "mongodb-memory-server": "10.1.4",
-    "next": "15.3.0",
+    "next": "15.4.11",
     "open": "^10.1.0",
-    "payload": "3.43.0",
+    "payload": "3.84.1",
     "prettier": "^3.4.2",
     "qs-esm": "7.0.2",
     "react": "19.1.0",
@@ -93,25 +93,7 @@
     "pnpm": "^9 || ^10"
   },
   "publishConfig": {
-    "exports": {
-      ".": {
-        "import": "./dist/exports/index.js",
-        "types": "./dist/exports/index.d.ts",
-        "default": "./dist/exports/index.js"
-      },
-      "./client": {
-        "import": "./dist/exports/client.js",
-        "types": "./dist/exports/client.d.ts",
-        "default": "./dist/exports/client.js"
-      },
-      "./rsc": {
-        "import": "./dist/exports/rsc.js",
-        "types": "./dist/exports/rsc.d.ts",
-        "default": "./dist/exports/rsc.js"
-      }
-    },
-    "main": "./dist/exports/index.js",
-    "types": "./dist/exports/index.d.ts"
+    "access": "public"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

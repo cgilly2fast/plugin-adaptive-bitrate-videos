@@ -1,7 +1,7 @@
 import { BasePayload } from 'payload'
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import { createMasterManifest, createPlaylistManifests } from './utils/manifestUtils.js'
 import { sliceVideo } from './service/sliceVideo.js'
 import { PossibleBitrates, PossibleResolutions, ProcessVideoParams } from '../../types.js'
@@ -13,6 +13,8 @@ const processVideoHandler = async (
   payload: BasePayload,
   params: ProcessVideoParams,
 ): Promise<ProcessVideoResult> => {
+  let tempDir: string | undefined
+
   try {
     const {
       inputPath,
@@ -26,12 +28,12 @@ const processVideoHandler = async (
       outputCollectionSlug,
     } = params as ProcessVideoParams
 
-    console.log('base data in processing', inputPath)
-    const decodedInputPath = decodeURIComponent(baseURL + inputPath)
+    const decodedInputPath = inputPath.startsWith('http')
+      ? decodeURIComponent(inputPath)
+      : decodeURIComponent(`${baseURL}${inputPath}`)
 
     const videoName = path.basename(decodedInputPath, path.extname(decodedInputPath))
-    const currentDir = path.dirname(fileURLToPath(import.meta.url))
-    const tempDir = path.join(currentDir, 'temp')
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'payload-abr-video-'))
     const tempOutputDir = path.join(tempDir, videoName)
 
     if (!fs.existsSync(tempOutputDir)) {
@@ -50,7 +52,7 @@ const processVideoHandler = async (
 
     const videoInfo = await sliceVideo(
       videoName,
-      inputPath,
+      decodedInputPath,
       tempOutputDir,
       possibleResolutions,
       possibleBitrates,
@@ -75,10 +77,8 @@ const processVideoHandler = async (
       originalData,
     )
 
-    fs.rmSync(tempDir, { recursive: true, force: true })
-
     if (!keepOriginal) {
-      payload.delete({
+      await payload.delete({
         collection: inputCollectionSlug,
         id: originalID,
       })
@@ -88,6 +88,10 @@ const processVideoHandler = async (
   } catch (error: any) {
     console.error('Error in processing video:', error)
     return { success: false, error: error.message }
+  } finally {
+    if (tempDir) {
+      fs.rmSync(tempDir, { recursive: true, force: true })
+    }
   }
 }
 

@@ -12,73 +12,63 @@ export const getAfterOperationHook =
     taskSlug,
   }: GetAfterOperationHookParams): CollectionAfterOperationHook =>
   async ({ operation, result, req: { payload }, collection }) => {
-    console.log('after operation')
     if (operation === 'create') {
       const { id, filename, mimeType, url, createdAt, updatedAt, ...data } = result as any
-      if (!mimeType.startsWith('video/')) {
+      if (!mimeType?.startsWith('video/')) {
         return result
       }
       const baseURL = payload.config.serverURL.replace(/\/$/, '')
-      console.log('base url', baseURL)
-      // const docs = await payload.delete({
-      //   collection: 'payload-jobs',
-      //   where: {},
-      // })
-      // console.log('deleet done', docs)
-      // return result
+      
+      // Do not await the timeout, but execute it safely
       setTimeout(async () => {
-        const [{ totalDocs: totalRunningJobs }, job] = await Promise.all([
-          payload.count({
-            collection: 'payload-jobs',
-            where: {
-              queue: {
-                equals: queueName,
+        try {
+          const [{ totalDocs: totalRunningJobs }, job] = await Promise.all([
+            payload.count({
+              collection: 'payload-jobs',
+              where: {
+                queue: { equals: queueName },
+                processing: { equals: true },
+                hasError: { equals: false },
               },
-              processing: {
-                equals: true,
+            }),
+            payload.jobs.queue({
+              queue: queueName,
+              task: taskSlug,
+              input: {
+                baseURL,
+                inputPath: url,
+                keepOriginal,
+                originalID: id,
+                originalData: data,
+                resolutions,
+                segmentDuration,
+                inputCollectionSlug: collection.slug,
+                outputCollectionSlug,
               },
-              hasError: {
-                equals: false,
-              },
-            },
-          }),
-          payload.jobs.queue({
-            queue: queueName,
-            task: taskSlug,
-            input: {
-              baseURL,
-              inputPath: url,
-              keepOriginal,
-              originalID: id,
-              originalData: data,
-              resolutions,
-              segmentDuration,
-              inputCollectionSlug: collection.slug,
-              outputCollectionSlug,
-            },
-          }),
-        ])
+            }),
+          ])
 
-        console.log('total runnnign job', totalRunningJobs, job)
-
-        if (totalRunningJobs < maxJobs) {
-          payload.jobs.run({
-            queue: queueName,
-            limit: 1,
-          })
+          if (totalRunningJobs < maxJobs) {
+            await payload.jobs.run({
+              queue: queueName,
+              limit: 1,
+            })
+          }
+        } catch (error) {
+          payload.logger.error({ err: error }, 'Error queuing adaptive bitrate job')
         }
       }, 1000)
       return result
     }
     if (operation === 'deleteByID') {
       const { filename, mimeType } = result as any
-      if (!mimeType.startsWith('application/x-mpegURL')) {
+      if (!mimeType?.startsWith('application/x-mpegURL')) {
         return result
       }
 
       const videoName = filename.split('.')[0]
 
-      payload.delete({
+      await payload.delete({
         collection: outputCollectionSlug,
         where: {
           filename: {
@@ -93,13 +83,13 @@ export const getAfterOperationHook =
       const { docs } = result as any
       for (let i = 0; i < docs.length; i++) {
         const { filename, mimeType } = docs[i]
-        if (!mimeType.startsWith('application/x-mpegURL')) {
+        if (!mimeType?.startsWith('application/x-mpegURL')) {
           continue
         }
 
         const videoName = filename.split('.')[0]
 
-        payload.delete({
+        await payload.delete({
           collection: outputCollectionSlug,
           where: {
             filename: {

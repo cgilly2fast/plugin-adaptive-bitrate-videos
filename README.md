@@ -295,6 +295,54 @@ const SimpleHlsPlayer = () => {
 export default SimpleHlsPlayer
 ```
 
+## Development & Testing
+
+This repository includes a Payload 3 development app in `dev/` for both manual testing and automated integration testing.
+
+### Manual Testing
+
+Start the local Payload/Next app:
+
+```bash
+pnpm dev
+```
+
+Then open the Payload admin at:
+
+```text
+http://localhost:3000/admin
+```
+
+To manually verify the plugin, upload a video from `dev/mocks/` into one of the configured upload collections (`media` or `videos`). The plugin should queue a processing job, create HLS segment files and playlist manifests in the configured segments collection, and create the master `.m3u8` manifest back in the source collection.
+
+### Integration Tests
+
+Run the integration test suite from the CLI:
+
+```bash
+NODE_ENV=test pnpm test:int
+```
+
+The integration test setup starts its own MongoDB memory replica set and starts the real Payload/Next dev server automatically. You do not need to run `pnpm dev` before running the tests.
+
+The tests verify the real upload and processing flow:
+
+- Payload upload collection receives the source video
+- the plugin queues and runs the video processing job
+- ffmpeg reads the uploaded file through Payload's HTTP file route
+- segment files and HLS playlists are uploaded into the segments collection
+- the master `.m3u8` manifest is created in the original source collection
+- deleting a master manifest removes related segment outputs
+
+### Build Check
+
+Before publishing, build the package and run the integration suite:
+
+```bash
+pnpm build
+NODE_ENV=test pnpm test:int
+```
+
 ## Memory & Runtime Considerations
 
 To run the this plugin, you will need to run your Payload server on a machine that can comfortably store 2x the max video upload size.
