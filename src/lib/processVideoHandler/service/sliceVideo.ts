@@ -15,6 +15,7 @@ import {
   VideoInfo,
 } from '../../../types.js'
 import { calcDimensions, getFrameRate } from '../utils/ffmpegUtils.js'
+import { getUploadFileURL } from '../utils/uploadURLUtils.js'
 
 const downloadFile = async (url: string, destination: string): Promise<void> => {
   await new Promise<void>((resolve, reject) => {
@@ -170,7 +171,7 @@ export async function sliceVideo(
 
           segments.push({
             index: i,
-            path: `${baseURL}/${outputCollectionSlug}/${segmentName}`,
+            path: getUploadFileURL(baseURL, outputCollectionSlug, segmentName),
             duration: computedDuration,
           })
         }

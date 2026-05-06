@@ -1,4 +1,4 @@
-import { type Config } from 'payload'
+import { type Config, type Field } from 'payload'
 
 import type { ABROptions } from './types.js'
 import { generateSegmentsCollection } from './collections/Segments.js'
@@ -51,8 +51,26 @@ export const abrVideos =
 
         const { keepOriginal, resolutions, segmentDuration } = options
 
+        const abrPlayerField: Field = {
+          name: 'abrVideoPlayer',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: {
+                path: 'plugin-adaptive-bitrate-videos/client',
+                exportName: 'HlsVideoField',
+                clientProps: {
+                  keepOriginal: keepOriginal ?? false,
+                  collectionSlug: existingCollection.slug,
+                },
+              },
+            },
+          },
+        }
+
         return {
           ...existingCollection,
+          fields: [abrPlayerField, ...(existingCollection.fields || [])],
           hooks: {
             ...(existingCollection.hooks || {}),
             afterOperation: [
