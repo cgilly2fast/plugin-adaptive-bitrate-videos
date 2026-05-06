@@ -1,4 +1,5 @@
 import { VideoInfo, PlaylistInfo, PossibleBitrates, UploadBufferFunc } from '../../../types.js'
+import { getUploadFileURL } from './uploadURLUtils.js'
 
 export async function createMasterManifest(
     videoName: string,
@@ -20,7 +21,7 @@ export async function createMasterManifest(
             `#EXT-X-STREAM-INF:BANDWIDTH=${
                 bitrate * 1000
             },RESOLUTION=${width}x${height},CODECS="mp4a.40.5,avc1.4d401e",FRAME-RATE=${frameRate}.0,CLOSED-CAPTIONS=NONE`,
-            `${baseURL}/${outputCollectionSlug}/${videoName}-${resolution}p-playlist.m3u8`,
+            getUploadFileURL(baseURL, outputCollectionSlug, `${videoName}-${resolution}p-playlist.m3u8`),
         )
     })
     const content = m3u8Content.join('\n')
