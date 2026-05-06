@@ -1,4 +1,5 @@
-import ffmpeg, { FfprobeStream } from 'fluent-ffmpeg'
+import ffmpeg from 'fluent-ffmpeg'
+import type { FfprobeStream } from 'fluent-ffmpeg'
 import http from 'http'
 import https from 'https'
 import fs from 'fs'

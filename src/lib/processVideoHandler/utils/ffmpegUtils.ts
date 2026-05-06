@@ -1,4 +1,4 @@
-import { FfprobeStream } from 'fluent-ffmpeg'
+import type { FfprobeStream } from 'fluent-ffmpeg'
 
 export function calcDimensions(aspectRatio: number, orientation: string, resolution: number) {
     let width: number, height: number

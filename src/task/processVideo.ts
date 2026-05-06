@@ -1,5 +1,4 @@
 import { TaskConfig } from 'payload'
-import processVideoHandler from '../lib/processVideoHandler/index.js'
 import { TaskConfigurationOptions, ProcessVideoParams } from '../types.js'
 
 export const getProcessVideoTask = async (options: TaskConfigurationOptions) => {
@@ -85,6 +84,7 @@ export const getProcessVideoTask = async (options: TaskConfigurationOptions) => 
         }
       }
 
+      const { default: processVideoHandler } = await import('../lib/processVideoHandler/index.js')
       const output = await processVideoHandler(payload, input as ProcessVideoParams)
 
       return {
