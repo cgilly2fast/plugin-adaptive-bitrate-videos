@@ -113,6 +113,6 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "fluent-ffmpeg": "^2.1.3",
-    "react-hls-video-player": "^3.2.5"
+    "react-hls-video-player": "^3.2.6"
   }
 }
